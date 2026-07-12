@@ -1,0 +1,58 @@
+import { NextRequest } from "next/server";
+import { isAppError } from "@/src/lib/errors";
+import { getCurrentUser } from "@/src/lib/auth";
+import { requirePermission, orgScope } from "@/src/lib/rbac";
+import { prisma } from "@/src/lib/prisma";
+import { success, error, unauthorized, serverError } from "@/src/lib/api-response";
+import { logger } from "@/src/lib/logger";
+
+export async function GET(req: NextRequest) {
+  const start = Date.now();
+  try {
+    const user = await getCurrentUser();
+    if (!user) return unauthorized();
+    requirePermission(user.role, "settings:read");
+    const settings = await prisma.settings.findMany({ where: orgScope(user) });
+    const merged = settings.reduce((acc, s) => {
+      acc[s.key] = s.value;
+      return acc;
+    }, {} as Record<string, any>);
+    logger.request("GET", "/api/settings", { userId: user.userId, durationMs: Date.now() - start, status: 200 });
+    return success(merged);
+  } catch (err) {
+    const durationMs = Date.now() - start;
+    if (isAppError(err)) {
+      logger.warn("GET /api/settings failed", { message: err.message, code: err.code, durationMs });
+      return error(err.message, err.statusCode as never, err.code);
+    }
+    logger.exception("GET /api/settings — unhandled error", err, { durationMs });
+    return serverError();
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  const start = Date.now();
+  try {
+    const user = await getCurrentUser();
+    if (!user) return unauthorized();
+    requirePermission(user.role, "settings:update");
+    const body = await req.json() as Record<string, any>;
+    for (const [key, value] of Object.entries(body)) {
+      await prisma.settings.upsert({
+        where: { organizationId_key: { organizationId: user.organizationId, key } },
+        update: { value: value as any },
+        create: { organizationId: user.organizationId, key, value: value as any },
+      });
+    }
+    logger.request("PUT", "/api/settings", { userId: user.userId, durationMs: Date.now() - start, status: 200 });
+    return success({ message: "Settings updated" });
+  } catch (err) {
+    const durationMs = Date.now() - start;
+    if (isAppError(err)) {
+      logger.warn("PUT /api/settings failed", { message: err.message, code: err.code, durationMs });
+      return error(err.message, err.statusCode as never, err.code);
+    }
+    logger.exception("PUT /api/settings — unhandled error", err, { durationMs });
+    return serverError();
+  }
+}

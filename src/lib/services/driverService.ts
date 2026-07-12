@@ -1,0 +1,89 @@
+import { prisma } from "@/src/lib/prisma";
+import { orgScope } from "@/src/lib/rbac";
+import type { AuthUser } from "@/src/types/rbac";
+import type { CreateDriverInput, UpdateDriverInput } from "@/src/lib/validations/driver.schema";
+import { NotFoundError, ConflictError } from "@/src/lib/errors";
+
+export class DriverService {
+  static async create(user: AuthUser, input: CreateDriverInput) {
+    const existing = await prisma.driver.findUnique({
+      where: { licenseNumber: input.licenseNumber },
+    });
+    if (existing) throw new ConflictError("Driver with this license number already exists");
+
+    return prisma.driver.create({
+      data: { ...input, organizationId: user.organizationId },
+    });
+  }
+
+  static async list(user: AuthUser, page: number, limit: number, filters?: any) {
+    const skip = (page - 1) * limit;
+    const where = { ...orgScope(user), ...filters };
+
+    const [items, total] = await Promise.all([
+      prisma.driver.findMany({ where, skip, take: limit, orderBy: { createdAt: "desc" } }),
+      prisma.driver.count({ where }),
+    ]);
+
+    return { items, total, page, limit };
+  }
+
+  static async getById(user: AuthUser, id: string) {
+    const driver = await prisma.driver.findUnique({
+      where: { id },
+      include: {
+        trips: { select: { id: true } },
+        fuelLogs: { select: { id: true } },
+      },
+    });
+
+    if (!driver) throw new NotFoundError("Driver");
+    if (driver.organizationId !== user.organizationId) throw new NotFoundError("Driver");
+
+    return driver;
+  }
+
+  static async update(user: AuthUser, id: string, input: UpdateDriverInput) {
+    await this.getById(user, id);
+
+    if (input.licenseNumber) {
+      const existing = await prisma.driver.findUnique({
+        where: { licenseNumber: input.licenseNumber },
+      });
+      if (existing && existing.id !== id) {
+        throw new ConflictError("Driver with this license number already exists");
+      }
+    }
+
+    return prisma.driver.update({
+      where: { id },
+      data: input,
+    });
+  }
+
+  static async delete(user: AuthUser, id: string) {
+    await this.getById(user, id);
+    return prisma.driver.update({
+      where: { id },
+      data: { status: "INACTIVE" },
+    });
+  }
+
+  static async getStats(user: AuthUser, id: string) {
+    const driver = await this.getById(user, id);
+
+    const [tripsCount, completedTrips, fuelLogs] = await Promise.all([
+      prisma.trip.count({ where: { driverId: id } }),
+      prisma.trip.count({ where: { driverId: id, status: "COMPLETED" } }),
+      prisma.fuelLog.findMany({ where: { driverId: id }, orderBy: { createdAt: "desc" }, take: 10 }),
+    ]);
+
+    return {
+      driver,
+      tripsCount,
+      completedTrips,
+      completionRate: tripsCount ? (completedTrips / tripsCount) * 100 : 0,
+      recentFuelLogs: fuelLogs,
+    };
+  }
+}

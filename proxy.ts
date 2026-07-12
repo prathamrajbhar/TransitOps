@@ -1,34 +1,38 @@
 /**
- * src/middleware.ts
+ * proxy.ts (Next.js 16 — replaces middleware.ts)
  * Protected route enforcement using JWT session cookies.
  *
- * Per the Next.js 16 auth guide (middleware pattern):
+ * Per the Next.js 16 proxy guide:
  * https://nextjs.org/docs/app/guides/authentication#optimistic-checks-with-proxy-optional
  *
  * Flow:
  *  - Protected routes (/dashboard/**) → redirect to /login if no valid session
  *  - Auth routes (/login, /signup)    → redirect to /dashboard if already logged in
- *  - API routes                        → return 401 JSON if no valid session
+ *  - API routes                       → return 401 JSON if no valid session
+ *  - On every authenticated request   → slide session expiry window forward
  */
 import { NextRequest, NextResponse } from "next/server";
-import { decrypt } from "./lib/session";
-import { SESSION_COOKIE_NAME } from "./lib/constants";
+import { decrypt } from "./src/lib/session";
+import { SESSION_COOKIE_NAME } from "./src/lib/constants";
 
 // ─── Route configuration ─────────────────────────────────────────
 
 const PROTECTED_ROUTES = ["/dashboard"];
 const AUTH_ROUTES = ["/login", "/signup"];
 const PROTECTED_API_PREFIX = "/api";
+
 // These API routes are always public (no session required)
 const PUBLIC_API_ROUTES = [
   "/api/auth/login",
   "/api/auth/signup",
+  "/api/auth/logout",
+  "/api/auth/session",
   "/api/health",
 ];
 
-// ─── Middleware ───────────────────────────────────────────────────
+// ─── Proxy handler ───────────────────────────────────────────────
 
-export default async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Decode the session token from cookie (no DB hit — optimistic check)
@@ -67,10 +71,8 @@ export default async function middleware(req: NextRequest) {
   }
 
   // ── Refresh session on every authenticated request ─────────────
-  // (Slides the 7-day expiry window forward)
   const response = NextResponse.next();
   if (isAuthenticated && token) {
-    // Re-set the cookie with extended expiry
     const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     response.cookies.set(SESSION_COOKIE_NAME, token, {
       httpOnly: true,
@@ -88,12 +90,6 @@ export default async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all paths EXCEPT:
-     *   - _next/static (static files)
-     *   - _next/image  (image optimization)
-     *   - favicon.ico / public assets
-     */
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

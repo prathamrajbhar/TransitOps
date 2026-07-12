@@ -12,17 +12,18 @@ const envSchema = z.object({
     .min(1, "DATABASE_URL is required")
     .url("DATABASE_URL must be a valid URL"),
 
-  // ── Auth ─────────────────────────────────────────────────────
+  // ── Auth (JWT signing) ────────────────────────────────────────
   AUTH_SECRET: z
     .string()
     .min(32, "AUTH_SECRET must be at least 32 characters"),
 
-  NEXTAUTH_URL: z
+  // ── App URL ───────────────────────────────────────────────────
+  APP_URL: z
     .string()
-    .url("NEXTAUTH_URL must be a valid URL")
+    .url("APP_URL must be a valid URL")
     .default("http://localhost:3000"),
 
-  // ── App ───────────────────────────────────────────────────────
+  // ── Environment ──────────────────────────────────────────────
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),

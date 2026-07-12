@@ -19,7 +19,7 @@
 - [x] Define proper relations (foreign keys, cascades)
 - [x] Add composite indexes for common queries (organizationId + status, organizationId + createdAt)
 - [x] Run `npx prisma generate`
-- [ ] Run `npx prisma db push` or create initial migration
+- [x] Run `npx prisma db push` or create initial migration
 - [x] Add seed script with sample data (admin user, org, vehicles, drivers)
 
 ## 2. Prisma Client Setup
@@ -39,15 +39,15 @@
 
 ## 4. Authentication
 
-- [x] Install and configure `next-auth` or a custom auth solution
+- [x] Install and configure JWT-based auth with `jose` (no NextAuth)
 - [x] Implement credential-based auth with password hashing (bcrypt)
-- [x] Set up `[...nextauth]/route.ts` API handler
-- [x] Implement session management (JWT or database sessions)
-- [x] Create `src/lib/auth.ts` with auth helpers (signIn, signOut, getSession)
-- [x] Create `src/lib/session.ts` with session read/write utilities
-- [x] Implement `middleware.ts` for protected route enforcement
-- [x] Add login/signup API routes or server actions
-- [x] Add session refresh logic
+- [x] Create explicit auth API routes (`login`, `signup`, `logout`, `session`)
+- [x] Implement session management (stateless JWT via HttpOnly cookies)
+- [x] Create `src/lib/auth.ts` with auth helpers (signIn, signOut, getCurrentUser)
+- [x] Create `src/lib/session.ts` with session read/write utilities (jose-based)
+- [x] Implement `proxy.ts` for protected route enforcement (Next.js 16 proxy convention)
+- [x] Add login/signup API routes
+- [x] Add session refresh logic (cookie expiry slide on each request)
 
 ## 5. Authorization & RBAC
 

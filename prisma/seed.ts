@@ -5,6 +5,7 @@
  * Run with: npx prisma db seed
  */
 
+import "dotenv/config";
 import { PrismaClient, Role, DriverStatus, VehicleType, VehicleStatus, TripStatus, MaintenanceType, MaintenanceStatus, ExpenseCategory } from "../src/generated/prisma/client";
 import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
