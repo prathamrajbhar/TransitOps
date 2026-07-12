@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useSession } from "@/providers/SessionProvider";
 import { useVehicles } from "@/hooks/useVehicles";
 import { formatCurrency, formatDistance } from "@/lib/utils/format";
 import { Plus, X, ShieldAlert, AlertCircle, Search } from "lucide-react";
@@ -11,7 +10,6 @@ import { useSettings } from "@/hooks/useSettings";
 
 export default function FleetPage() {
   const { vehicles, addVehicle, retireVehicle } = useVehicles();
-  const { user } = useSession();
 
   // Filters State
   const [searchTerm, setSearchTerm] = useState("");

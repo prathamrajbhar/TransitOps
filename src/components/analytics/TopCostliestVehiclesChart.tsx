@@ -19,13 +19,20 @@ interface TopCostliestVehiclesChartProps {
 export function TopCostliestVehiclesChart({ vehicles }: TopCostliestVehiclesChartProps) {
   const [animated, setAnimated] = useState(false);
 
-  useEffect(() => {
+  const [prevVehicles, setPrevVehicles] = useState(vehicles);
+  if (vehicles !== prevVehicles) {
+    setPrevVehicles(vehicles);
     setAnimated(false);
-    const timer = setTimeout(() => {
-      setAnimated(true);
-    }, 50);
-    return () => clearTimeout(timer);
-  }, [vehicles]);
+  }
+
+  useEffect(() => {
+    if (!animated) {
+      const timer = setTimeout(() => {
+        setAnimated(true);
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [animated]);
 
   const maxCost = vehicles[0]?.cost || 1;
 

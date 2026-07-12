@@ -53,7 +53,7 @@ describe('Vehicles API', () => {
           year: 2023,
         }),
       });
-      const _data = await res.json();
+      const data = await res.json();
       expect(res.status).toBe(400);
       expect(data.success).toBe(false);
     });
@@ -62,7 +62,7 @@ describe('Vehicles API', () => {
   describe('GET /api/vehicles', () => {
     it('should list vehicles with pagination', async () => {
       const res = await fetch('http://localhost:3000/api/vehicles?page=1&limit=10');
-      const _data = await res.json();
+      const data = await res.json();
       expect(res.status).toBe(200);
       expect(data.success).toBe(true);
       expect(Array.isArray(data.data)).toBe(true);
@@ -75,7 +75,7 @@ describe('Vehicles API', () => {
 
     it('should handle invalid pagination params', async () => {
       const res = await fetch('http://localhost:3000/api/vehicles?page=0&limit=200');
-      const _data = await res.json();
+      await res.json();
       expect(res.status).toBe(400);
     });
   });
@@ -83,7 +83,7 @@ describe('Vehicles API', () => {
   describe('GET /api/vehicles/[id]', () => {
     it('should get vehicle by id', async () => {
       const res = await fetch(`http://localhost:3000/api/vehicles/${vehicleId}`);
-      const _data = await res.json();
+      const data = await res.json();
       expect(res.status).toBe(200);
       expect(data.success).toBe(true);
       expect(data.data.id).toBe(vehicleId);
@@ -92,7 +92,7 @@ describe('Vehicles API', () => {
 
     it('should return 404 for non-existent vehicle', async () => {
       const res = await fetch('http://localhost:3000/api/vehicles/invalid-id');
-      const _data = await res.json();
+      const data = await res.json();
       expect(res.status).toBe(404);
       expect(data.success).toBe(false);
     });
@@ -107,7 +107,7 @@ describe('Vehicles API', () => {
           status: 'IN_MAINTENANCE',
         }),
       });
-      const _data = await res.json();
+      const data = await res.json();
       expect(res.status).toBe(200);
       expect(data.success).toBe(true);
       expect(data.data.status).toBe('IN_MAINTENANCE');
@@ -119,7 +119,7 @@ describe('Vehicles API', () => {
       const res = await fetch(`http://localhost:3000/api/vehicles/${vehicleId}`, {
         method: 'DELETE',
       });
-      const _data = await res.json();
+      const data = await res.json();
       expect(res.status).toBe(200);
       expect(data.success).toBe(true);
     });

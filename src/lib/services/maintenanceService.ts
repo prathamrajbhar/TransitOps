@@ -3,6 +3,7 @@ import { orgScope } from "@/lib/rbac";
 import type { AuthUser } from "@/types/rbac";
 import type { CreateMaintenanceInput, UpdateMaintenanceInput } from "@/lib/validations/maintenance.schema";
 import { NotFoundError, ConflictError } from "@/lib/errors";
+import { Prisma } from "@/generated/prisma/client";
 
 export class MaintenanceService {
   static async create(user: AuthUser, input: CreateMaintenanceInput) {
@@ -43,17 +44,17 @@ export class MaintenanceService {
 
   static async list(user: AuthUser, page: number, limit: number, filters?: Record<string, unknown>) {
     const skip = (page - 1) * limit;
-    const where = { ...orgScope(user), ...filters } as Record<string, unknown>;
+    const where: Prisma.MaintenanceRecordWhereInput = { ...orgScope(user), ...filters };
 
     const [items, total] = await Promise.all([
       prisma.maintenanceRecord.findMany({
-        where: where as any,
+        where,
         skip,
         take: limit,
         include: { vehicle: true },
         orderBy: { createdAt: "desc" },
       }),
-      prisma.maintenanceRecord.count({ where: where as any }),
+      prisma.maintenanceRecord.count({ where }),
     ]);
 
     return { items, total, page, limit };
@@ -75,7 +76,7 @@ export class MaintenanceService {
     await this.getById(user, id);
     return prisma.maintenanceRecord.update({
       where: { id },
-      data: input as any,
+      data: input,
     });
   }
 

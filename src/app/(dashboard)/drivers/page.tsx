@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useSession } from "@/providers/SessionProvider";
 import { useDrivers } from "@/hooks/useDrivers";
 import { Plus, X, AlertCircle, ShieldAlert, Award, Search } from "lucide-react";
 
@@ -10,7 +9,6 @@ import { useSettings } from "@/hooks/useSettings";
 
 export default function DriversPage() {
   const { drivers, addDriver, updateDriverStatus } = useDrivers();
-  const { user } = useSession();
 
   // Search & Filter State
   const [searchTerm, setSearchTerm] = useState("");

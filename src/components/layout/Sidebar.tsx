@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "@/providers/SessionProvider";
 import { useSettings } from "@/hooks/useSettings";
 import { RBAC_MATRIX } from "@/context/MockDataContext";
-import type { RoleName, ModuleName, AccessLevel } from "@/context/MockDataContext";
+import type { RoleName } from "@/context/MockDataContext";
 import {
   LayoutDashboard,
   Truck,

@@ -31,7 +31,7 @@ describe('Expenses API', () => {
           description: 'Invalid expense',
         }),
       });
-      const _data = await res.json();
+      await res.json();
       expect(res.status).toBe(400);
     });
   });
@@ -46,7 +46,7 @@ describe('Expenses API', () => {
 
     it('should filter by category', async () => {
       const res = await fetch('http://localhost:3000/api/expenses?category=FUEL');
-      const _data = await res.json();
+      const data = await res.json();
       expect(res.status).toBe(200);
       data.data.forEach((expense: Record<string, unknown>) => {
         expect(expense.category).toBe('FUEL');
@@ -70,7 +70,7 @@ describe('Expenses API', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: 5500 }),
       });
-      const _data = await res.json();
+      await res.json();
       expect(res.status).toBe(200);
     });
   });

@@ -35,7 +35,7 @@ describe('Drivers API', () => {
           status: 'ACTIVE',
         }),
       });
-      const _data = await res.json();
+      await res.json();
       expect(res.status).toBe(409);
     });
 
@@ -45,7 +45,7 @@ describe('Drivers API', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: 'John' }),
       });
-      const _data = await res.json();
+      await res.json();
       expect(res.status).toBe(400);
     });
   });
@@ -86,7 +86,7 @@ describe('Drivers API', () => {
   describe('GET /api/drivers/[id]/stats', () => {
     it('should return driver stats', async () => {
       const res = await fetch(`http://localhost:3000/api/drivers/${driverId}/stats`);
-      const _data = await res.json();
+      const data = await res.json();
       expect(res.status).toBe(200);
       expect(data.data).toHaveProperty('tripsCount');
       expect(data.data).toHaveProperty('completedTrips');
@@ -99,7 +99,7 @@ describe('Drivers API', () => {
       const res = await fetch(`http://localhost:3000/api/drivers/${driverId}`, {
         method: 'DELETE',
       });
-      const _data = await res.json();
+      await res.json();
       expect(res.status).toBe(200);
     });
   });

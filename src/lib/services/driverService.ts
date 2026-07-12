@@ -3,6 +3,7 @@ import { orgScope } from "@/lib/rbac";
 import type { AuthUser } from "@/types/rbac";
 import type { CreateDriverInput, UpdateDriverInput } from "@/lib/validations/driver.schema";
 import { NotFoundError, ConflictError } from "@/lib/errors";
+import { Prisma } from "@/generated/prisma/client";
 
 export class DriverService {
   static async create(user: AuthUser, input: CreateDriverInput) {
@@ -18,11 +19,11 @@ export class DriverService {
 
   static async list(user: AuthUser, page: number, limit: number, filters?: Record<string, unknown>) {
     const skip = (page - 1) * limit;
-    const where = { ...orgScope(user), ...filters } as Record<string, unknown>;
+    const where: Prisma.DriverWhereInput = { ...orgScope(user), ...filters };
 
     const [items, total] = await Promise.all([
-      prisma.driver.findMany({ where: where as any, skip, take: limit, orderBy: { createdAt: "desc" } }),
-      prisma.driver.count({ where: where as any }),
+      prisma.driver.findMany({ where, skip, take: limit, orderBy: { createdAt: "desc" } }),
+      prisma.driver.count({ where }),
     ]);
 
     return { items, total, page, limit };
@@ -53,7 +54,7 @@ export class DriverService {
 
     return prisma.driver.update({
       where: { id },
-      data: input as any,
+      data: input,
     });
   }
 

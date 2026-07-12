@@ -5,6 +5,7 @@ import { useSession } from "@/providers/SessionProvider";
 import { useRouter } from "next/navigation";
 import { Search, ChevronDown, LogOut, User, Mail, Shield } from "lucide-react";
 import RoleBadge from "./RoleBadge";
+import { RoleName } from "@/context/MockDataContext";
 
 export const Topbar: React.FC = () => {
   const { user, signOut } = useSession();
@@ -116,7 +117,7 @@ export const Topbar: React.FC = () => {
                   <span>Security Role</span>
                 </div>
                 <div className="flex">
-                  <RoleBadge role={user.role as any} />
+                  <RoleBadge role={user.role as RoleName} />
                 </div>
               </div>
 

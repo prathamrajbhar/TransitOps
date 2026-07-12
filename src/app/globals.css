@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
-  --font-display: 'Outfit', 'Google Sans', 'Plus Jakarta Sans', sans-serif;
+  --font-sans: var(--font-plus-jakarta-sans), var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-outfit), 'Google Sans', var(--font-plus-jakarta-sans), sans-serif;
   --color-brand-50: #fffbeb;
   --color-brand-100: #fef3c7;
   --color-brand-500: #f59e0b;

@@ -3,6 +3,7 @@ import { orgScope } from "@/lib/rbac";
 import type { AuthUser } from "@/types/rbac";
 import type { CreateFuelLogInput } from "@/lib/validations/fuelExpense.schema";
 import { NotFoundError } from "@/lib/errors";
+import { Prisma } from "@/generated/prisma/client";
 
 export class FuelExpenseService {
   static async createFuelLog(user: AuthUser, input: CreateFuelLogInput) {
@@ -19,17 +20,17 @@ export class FuelExpenseService {
 
   static async listFuelLogs(user: AuthUser, page: number, limit: number, filters?: Record<string, unknown>) {
     const skip = (page - 1) * limit;
-    const where = { ...orgScope(user), ...filters } as Record<string, unknown>;
+    const where: Prisma.FuelLogWhereInput = { ...orgScope(user), ...filters };
 
     const [items, total] = await Promise.all([
       prisma.fuelLog.findMany({
-        where: where as any,
+        where,
         skip,
         take: limit,
         include: { vehicle: true },
         orderBy: { createdAt: "desc" },
       }),
-      prisma.fuelLog.count({ where: where as any }),
+      prisma.fuelLog.count({ where }),
     ]);
 
     return { items, total, page, limit };

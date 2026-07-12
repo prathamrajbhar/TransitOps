@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useSession } from "@/providers/SessionProvider";
 import { useVehicles } from "@/hooks/useVehicles";
 import { useMaintenance } from "@/hooks/useMaintenance";
 import { formatCurrency } from "@/lib/utils/format";
@@ -11,7 +10,6 @@ import { ShieldAlert, AlertCircle, CheckCircle2, Hammer } from "lucide-react";
 import { useSettings } from "@/hooks/useSettings";
 
 export default function MaintenancePage() {
-  const { user } = useSession();
   const { vehicles } = useVehicles();
   const { maintenanceLogs, addMaintenanceLog, completeMaintenanceLog } = useMaintenance();
 

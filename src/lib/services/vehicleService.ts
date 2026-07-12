@@ -3,6 +3,7 @@ import { orgScope } from "@/lib/rbac";
 import type { AuthUser } from "@/types/rbac";
 import type { CreateVehicleInput, UpdateVehicleInput } from "@/lib/validations/vehicle.schema";
 import { NotFoundError, ConflictError } from "@/lib/errors";
+import { Prisma } from "@/generated/prisma/client";
 
 export class VehicleService {
   static async create(user: AuthUser, input: CreateVehicleInput) {
@@ -18,11 +19,11 @@ export class VehicleService {
 
   static async list(user: AuthUser, page: number, limit: number, filters?: Record<string, unknown>) {
     const skip = (page - 1) * limit;
-    const where = { ...orgScope(user), ...filters } as Record<string, unknown>;
+    const where: Prisma.VehicleWhereInput = { ...orgScope(user), ...filters };
 
     const [items, total] = await Promise.all([
-      prisma.vehicle.findMany({ where: where as any, skip, take: limit, orderBy: { createdAt: "desc" } }),
-      prisma.vehicle.count({ where: where as any }),
+      prisma.vehicle.findMany({ where, skip, take: limit, orderBy: { createdAt: "desc" } }),
+      prisma.vehicle.count({ where }),
     ]);
 
     return { items, total, page, limit };
@@ -56,15 +57,18 @@ export class VehicleService {
 
     return prisma.vehicle.update({
       where: { id },
-      data: input as any,
+      data: input as Prisma.VehicleUpdateInput,
     });
   }
 
   static async delete(user: AuthUser, id: string) {
-    await this.getById(user, id);
-    return prisma.vehicle.update({
+    const vehicle = await this.getById(user, id);
+    if (vehicle.status !== "AVAILABLE" && vehicle.status !== "RETIRED") {
+      throw new ConflictError("Can only delete AVAILABLE or RETIRED vehicles");
+    }
+
+    return prisma.vehicle.delete({
       where: { id },
-      data: { status: "RETIRED" },
     });
   }
 }

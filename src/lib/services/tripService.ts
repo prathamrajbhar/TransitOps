@@ -3,6 +3,7 @@ import { orgScope } from "@/lib/rbac";
 import type { AuthUser } from "@/types/rbac";
 import type { CreateTripInput, DispatchTripInput, CompleteTripInput } from "@/lib/validations/trip.schema";
 import { NotFoundError, ConflictError } from "@/lib/errors";
+import { Prisma } from "@/generated/prisma/client";
 
 export class TripService {
   static async create(user: AuthUser, input: CreateTripInput) {
@@ -41,17 +42,17 @@ export class TripService {
 
   static async list(user: AuthUser, page: number, limit: number, filters?: Record<string, unknown>) {
     const skip = (page - 1) * limit;
-    const where = { ...orgScope(user), ...filters } as Record<string, unknown>;
+    const where: Prisma.TripWhereInput = { ...orgScope(user), ...filters };
 
     const [items, total] = await Promise.all([
       prisma.trip.findMany({
-        where: where as any,
+        where,
         skip,
         take: limit,
         include: { vehicle: true, driver: true },
         orderBy: { createdAt: "desc" },
       }),
-      prisma.trip.count({ where: where as any }),
+      prisma.trip.count({ where }),
     ]);
 
     return { items, total, page, limit };
@@ -77,11 +78,12 @@ export class TripService {
     await this.getById(user, id);
     return prisma.trip.update({
       where: { id },
-      data: input as any,
+      data: input as Prisma.TripUpdateInput,
     });
   }
 
   static async dispatch(user: AuthUser, id: string, _input: DispatchTripInput) {
+    void _input;
     const trip = await this.getById(user, id);
     if (trip.status !== "DRAFT") {
       throw new ConflictError("Trip must be in DRAFT status to dispatch");
@@ -213,7 +215,7 @@ export class TripService {
     }
 
     // Free vehicle and driver if they were dispatched
-    const updates: Promise<any>[] = [
+    const updates: Promise<unknown>[] = [
       prisma.trip.update({
         where: { id },
         data: { status: "CANCELLED", etaMinutes: null },

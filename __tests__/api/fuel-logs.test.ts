@@ -35,7 +35,7 @@ describe('Fuel Logs API', () => {
           totalCost: -1000,
         }),
       });
-      const _data = await res.json();
+      await res.json();
       expect(res.status).toBe(400);
     });
   });
@@ -65,7 +65,7 @@ describe('Fuel Logs API', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ liters: 55 }),
       });
-      const _data = await res.json();
+      await res.json();
       expect(res.status).toBe(200);
     });
   });

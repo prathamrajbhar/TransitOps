@@ -108,7 +108,7 @@ describe('Trips API - State Machine', () => {
         `http://localhost:3000/api/trips/${tripData.data.id}/complete`,
         { method: 'POST' }
       );
-      expect(res.status).toBe(409);
+      expect(completeRes.status).toBe(409);
     });
 
     it('should not cancel a COMPLETED trip', async () => {

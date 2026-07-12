@@ -19,19 +19,23 @@ export default function SettingsPage() {
   // Local state for the editable matrix
   const [matrix, setMatrix] = useState<Record<RoleName, Record<ModuleName, AccessLevel>>>(RBAC_MATRIX);
 
-  React.useEffect(() => {
+  const [prevSettings, setPrevSettings] = useState(settings);
+  if (settings !== prevSettings) {
+    setPrevSettings(settings);
     if (settings && Object.keys(settings).length > 0) {
       setDepotName(settings.depotName || "Mumbai Logistics Depot");
       setCurrency(settings.currency || "INR");
       setDistanceUnit(settings.distanceUnit || "km");
     }
-  }, [settings]);
+  }
 
-  React.useEffect(() => {
+  const [prevUserMatrix, setPrevUserMatrix] = useState(userMatrix);
+  if (userMatrix !== prevUserMatrix) {
+    setPrevUserMatrix(userMatrix);
     if (userMatrix) {
       setMatrix(userMatrix);
     }
-  }, [userMatrix]);
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

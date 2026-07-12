@@ -20,14 +20,20 @@ export function MonthlyRevenueChart({ chartData, timeFilter }: MonthlyRevenueCha
   const [chartType, setChartType] = useState<"bar" | "area">("area");
   const [animated, setAnimated] = useState(false);
 
-  // Trigger animation on mount and filter changes
-  useEffect(() => {
+  const [prevTimeFilter, setPrevTimeFilter] = useState(timeFilter);
+  if (timeFilter !== prevTimeFilter) {
+    setPrevTimeFilter(timeFilter);
     setAnimated(false);
-    const timer = setTimeout(() => {
-      setAnimated(true);
-    }, 50);
-    return () => clearTimeout(timer);
-  }, [timeFilter]);
+  }
+
+  useEffect(() => {
+    if (!animated) {
+      const timer = setTimeout(() => {
+        setAnimated(true);
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [animated]);
 
   const maxChartVal = Math.max(...chartData.map((d) => d.revenue)) || 1;
 

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "@/providers/SessionProvider";
 import type { RoleName } from "@/context/MockDataContext";
-import { Shield, Lock, Mail, AlertCircle, User, CheckCircle, Truck, Route, BarChart3, ArrowRight, UserPlus, Eye, EyeOff } from "lucide-react";
+import { Shield, Lock, Mail, AlertCircle, User, CheckCircle, UserPlus, Eye, EyeOff } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -70,44 +70,7 @@ export default function RegisterPage() {
     }
   };
 
-  const roleCards: { role: RoleName; label: string; desc: string; icon: React.ReactNode; color: string; borderColor: string; bgColor: string }[] = [
-    {
-      role: "FLEET_MANAGER",
-      label: "Fleet Manager",
-      desc: "Fleet & Maintenance",
-      icon: <Truck className="w-4 h-4" />,
-      color: "text-amber-400",
-      borderColor: "border-amber-500/30 hover:border-amber-400/60",
-      bgColor: "bg-amber-500/10 hover:bg-amber-500/20",
-    },
-    {
-      role: "DISPATCHER",
-      label: "Dispatcher",
-      desc: "Trip Planning & Dashboard",
-      icon: <Route className="w-4 h-4" />,
-      color: "text-blue-400",
-      borderColor: "border-blue-500/30 hover:border-blue-400/60",
-      bgColor: "bg-blue-500/10 hover:bg-blue-500/20",
-    },
-    {
-      role: "SAFETY_OFFICER",
-      label: "Safety Officer",
-      desc: "Drivers & Compliance",
-      icon: <Shield className="w-4 h-4" />,
-      color: "text-emerald-400",
-      borderColor: "border-emerald-500/30 hover:border-emerald-400/60",
-      bgColor: "bg-emerald-500/10 hover:bg-emerald-500/20",
-    },
-    {
-      role: "FINANCIAL_ANALYST",
-      label: "Financial Analyst",
-      desc: "Fuel, Expenses & ROI",
-      icon: <BarChart3 className="w-4 h-4" />,
-      color: "text-violet-400",
-      borderColor: "border-violet-500/30 hover:border-violet-400/60",
-      bgColor: "bg-violet-500/10 hover:bg-violet-500/20",
-    },
-  ];
+
 
   return (
     <main className="min-h-screen w-full relative flex items-center justify-center font-sans overflow-hidden bg-slate-950 p-4 sm:p-6 md:p-8">

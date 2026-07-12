@@ -5,11 +5,19 @@ import { RBAC_MATRIX, ModuleName, RoleName, AccessLevel } from "@/context/MockDa
 
 const SETTINGS_KEY = ["settings"] as const;
 
+export interface SystemSettings {
+  depotName?: string;
+  currency?: string;
+  distanceUnit?: string;
+  rbac_matrix?: string | Record<RoleName, Record<ModuleName, AccessLevel>>;
+  [key: string]: unknown;
+}
+
 export const useSettings = (options?: { enabled?: boolean; module?: ModuleName }) => {
   const queryClient = useQueryClient();
   const { user } = useSession();
 
-  const { data, isLoading, refetch } = useQuery<Record<string, any>>({
+  const { data, isLoading, refetch } = useQuery<SystemSettings>({
     queryKey: SETTINGS_KEY,
     queryFn: async () => {
       const res = await fetch("/api/settings");
@@ -21,7 +29,7 @@ export const useSettings = (options?: { enabled?: boolean; module?: ModuleName }
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (settings: Record<string, any>) => {
+    mutationFn: async (settings: SystemSettings) => {
       const res = await fetch("/api/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -34,7 +42,7 @@ export const useSettings = (options?: { enabled?: boolean; module?: ModuleName }
     onSuccess: () => queryClient.invalidateQueries({ queryKey: SETTINGS_KEY }),
   });
 
-  const updateSettings = async (settings: Record<string, any>) => {
+  const updateSettings = async (settings: SystemSettings) => {
     try {
       await updateMutation.mutateAsync(settings);
       return { success: true as const };
@@ -57,14 +65,16 @@ export const useSettings = (options?: { enabled?: boolean; module?: ModuleName }
     return RBAC_MATRIX;
   }, [data]);
 
+  const targetModule = options?.module;
+
   // Compute if the current user has write access to the module
   const canModify = useMemo(() => {
     if (!user) return false;
     // Fleet Manager is the administrative role and can always modify system settings
-    if (user.role === "FLEET_MANAGER" && options?.module === "SETTINGS") return true;
-    if (!options?.module) return false;
-    return userMatrix[user.role]?.[options.module] === "FULL";
-  }, [user, userMatrix, options?.module]);
+    if (user.role === "FLEET_MANAGER" && targetModule === "SETTINGS") return true;
+    if (!targetModule) return false;
+    return userMatrix[user.role]?.[targetModule] === "FULL";
+  }, [user, userMatrix, targetModule]);
 
   return {
     settings: data ?? {},

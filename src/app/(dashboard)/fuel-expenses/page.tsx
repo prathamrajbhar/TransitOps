@@ -2,22 +2,18 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useSession } from "@/providers/SessionProvider";
 import { useVehicles } from "@/hooks/useVehicles";
 import { useTrips } from "@/hooks/useTrips";
 import { useFuelExpenses } from "@/hooks/useFuelExpenses";
-import { useAnalytics } from "@/hooks/useAnalytics";
 import { formatCurrency } from "@/lib/utils/format";
 import { Fuel, Plus, X, AlertCircle, Coins } from "lucide-react";
 
 import { useSettings } from "@/hooks/useSettings";
 
 export default function FuelExpensesPage() {
-  const { user } = useSession();
   const { vehicles } = useVehicles();
   const { trips } = useTrips();
   const { fuelLogs, expenses, addFuelLog, addExpense } = useFuelExpenses();
-  const { totalOperationalCost } = useAnalytics();
 
   // Dialog Modals State
   const [isFuelModalOpen, setIsFuelModalOpen] = useState(false);

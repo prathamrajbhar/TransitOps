@@ -215,7 +215,7 @@ async function resolvePermissions(role: string, organizationId: string): Promise
     try {
       matrix = typeof settings.value === "string"
         ? JSON.parse(settings.value)
-        : settings.value as any;
+        : settings.value as typeof DEFAULT_RBAC_MATRIX;
     } catch (e) {
       console.error("Failed to parse DB rbac_matrix in auth.ts", e);
     }

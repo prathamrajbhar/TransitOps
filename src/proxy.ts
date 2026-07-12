@@ -61,7 +61,7 @@ export async function proxy(req: NextRequest) {
           isAuthenticated = true;
           isMockSession = true;
         }
-      } catch (e) {
+      } catch {
         // Ignore parsing error
       }
     }
