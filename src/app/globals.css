@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Outfit', 'Inter', system-ui, sans-serif;
+  --color-brand-50: #fffbeb;
+  --color-brand-100: #fef3c7;
+  --color-brand-500: #f59e0b;
+  --color-brand-600: #d97706;
+  --color-brand-700: #b45309;
+}
+
+@utility glass-panel {
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04);
+}
+
+@utility glass-panel-dark {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+}
+
+@utility glass-card {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(12px) saturate(110%);
+  -webkit-backdrop-filter: blur(12px) saturate(110%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 20px 0 rgba(31, 38, 135, 0.03);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@utility glass-card-hover {
+  background: rgba(255, 255, 255, 0.65);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px 0 rgba(31, 38, 135, 0.06);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+@utility glass-input {
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  backdrop-filter: blur(4px);
+  border-radius: 0.5rem;
+  transition: all 0.2s ease-in-out;
+}
+
+@utility glass-input-focus {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: #d97706;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.2);
+}
+
+@utility bg-mesh {
+  background-color: #f8fafc;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.07) 0px, transparent 50%),
+    radial-gradient(at 50% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.05) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(20, 184, 166, 0.04) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.05) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+body {
+  color: #1e293b;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.1);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.2);
+}
+
+/* Improve visibility and readability of form controls */
+.glass-input {
+  background: rgba(255, 255, 255, 0.82) !important;
+  border: 1.5px solid rgba(15, 23, 42, 0.25) !important;
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+.glass-input::placeholder {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+.glass-input:focus {
+  background: #ffffff !important;
+  border-color: #d97706 !important;
+  box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.25) !important;
+}
+
+.glass-input option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+/* Make form labels highly readable */
+.glass-panel label,
+form label {
+  color: #1e293b !important; /* slate-800 */
+  font-weight: 800 !important; /* Extra bold */
+}

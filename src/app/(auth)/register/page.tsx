@@ -4,18 +4,19 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useMockData, RoleName } from "@/context/MockDataContext";
-import { Shield, Lock, Mail, ChevronRight, AlertCircle, Eye, EyeOff, Truck, Route, Users, BarChart3, ArrowRight } from "lucide-react";
+import { Shield, Lock, Mail, AlertCircle, User, CheckCircle, Truck, Route, BarChart3, ArrowRight, UserPlus } from "lucide-react";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
-  const { login, currentUser } = useMockData();
+  const { register, currentUser } = useMockData();
   
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("admin"); // default password for ease of hackathon test
+  const [password, setPassword] = useState("admin"); // seed default password
+  const [role, setRole] = useState<RoleName>("FLEET_MANAGER");
   
   const [error, setError] = useState<string | null>(null);
-  const [rememberMe, setRememberMe] = useState(true);
-  const [showPassword, setShowPassword] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
 
   // If already logged in, redirect to dashboard
   useEffect(() => {
@@ -27,67 +28,64 @@ export default function LoginPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setSuccess(null);
 
+    if (!name.trim()) {
+      setError("Please enter your full name.");
+      return;
+    }
     if (!email.trim()) {
       setError("Please enter your email address.");
       return;
     }
-    const res = login(email.trim());
+
+    const res = register(name.trim(), email.trim(), role);
     if (res.success) {
-      router.push("/dashboard");
+      setSuccess(`Account registered successfully for ${role.replace("_", " ")}! Redirecting to login...`);
+      setTimeout(() => {
+        router.push("/login");
+      }, 2000);
     } else {
-      setError(res.error || "Invalid credentials. Please verify your email.");
+      setError(res.error || "Registration failed. Please try again.");
     }
   };
 
-  const handleAutofill = (type: RoleName) => {
-    const emails: Record<RoleName, string> = {
-      FLEET_MANAGER: "manager@transitops.in",
-      DISPATCHER: "dispatcher@transitops.in",
-      SAFETY_OFFICER: "safety@transitops.in",
-      FINANCIAL_ANALYST: "analyst@transitops.in",
-    };
-    setEmail(emails[type]);
-    setPassword("admin");
-    setError(null);
-  };
-
-  const roleCards: { role: RoleName; label: string; desc: string; icon: React.ReactNode; color: string; borderColor: string; bgColor: string }[] = [
+  const roleOptions: { value: RoleName; label: string; desc: string; icon: React.ReactNode; color: string; borderColor: string; bgColor: string }[] = [
     {
-      role: "FLEET_MANAGER",
+      value: "FLEET_MANAGER",
       label: "Fleet Manager",
-      desc: "Fleet & Maintenance",
+      desc: "Manage vehicles, maintenance & fleet operations",
       icon: <Truck className="w-4 h-4" />,
       color: "text-amber-400",
-      borderColor: "border-amber-500/30 hover:border-amber-400/60",
-      bgColor: "bg-amber-500/10 hover:bg-amber-500/20",
+      borderColor: "border-amber-500/30",
+      bgColor: "bg-amber-500/10",
     },
     {
-      role: "DISPATCHER",
+      value: "DISPATCHER",
       label: "Dispatcher",
-      desc: "Trip Planning & Dashboard",
+      desc: "Plan trips, dispatch vehicles & track routes",
       icon: <Route className="w-4 h-4" />,
       color: "text-blue-400",
-      borderColor: "border-blue-500/30 hover:border-blue-400/60",
-      bgColor: "bg-blue-500/10 hover:bg-blue-500/20",
+      borderColor: "border-blue-500/30",
+      bgColor: "bg-blue-500/10",
     },
     {
-      role: "SAFETY_OFFICER",
+      value: "SAFETY_OFFICER",
       label: "Safety Officer",
-      desc: "Drivers & Compliance",
+      desc: "Monitor driver compliance & safety scores",
       icon: <Shield className="w-4 h-4" />,
       color: "text-emerald-400",
-      borderColor: "border-emerald-500/30 hover:border-emerald-400/60",
-      bgColor: "bg-emerald-500/10 hover:bg-emerald-500/20",
+      borderColor: "border-emerald-500/30",
+      bgColor: "bg-emerald-500/10",
     },
     {
-      role: "FINANCIAL_ANALYST",
+      value: "FINANCIAL_ANALYST",
       label: "Financial Analyst",
-      desc: "Fuel, Expenses & ROI",
+      desc: "Track fuel costs, expenses & ROI analytics",
       icon: <BarChart3 className="w-4 h-4" />,
       color: "text-violet-400",
-      borderColor: "border-violet-500/30 hover:border-violet-400/60",
-      bgColor: "bg-violet-500/10 hover:bg-violet-500/20",
+      borderColor: "border-violet-500/30",
+      bgColor: "bg-violet-500/10",
     },
   ];
 
@@ -143,32 +141,32 @@ export default function LoginPage() {
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm text-[11px] font-semibold text-slate-300">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Enterprise Fleet Management Platform
+                Join the Platform
               </div>
               <h1 className="text-5xl xl:text-6xl font-black leading-[1.05] tracking-tight">
-                <span className="text-white">One platform,</span> <br />
+                <span className="text-white">Get started</span> <br />
                 <span className="bg-gradient-to-r from-amber-400 via-amber-300 to-orange-400 bg-clip-text text-transparent">
-                  four distinct roles.
+                  in seconds.
                 </span>
               </h1>
               <p className="text-[15px] text-slate-400 leading-relaxed font-medium max-w-md">
-                A centralized dashboard that automatically enforces business regulations, vehicle-capacity compliance, and driver safety schedules in real-time.
+                Register your account and choose your role. Each role unlocks a tailored dashboard with the exact tools you need.
               </p>
             </div>
 
-            {/* Role privilege cards - horizontal */}
+            {/* Role cards */}
             <div className="space-y-3 pt-2">
-              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Access Privileges</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Available Roles</p>
               <div className="grid grid-cols-2 gap-2.5">
-                {roleCards.map((rc) => (
+                {roleOptions.map((rc) => (
                   <div
-                    key={rc.role}
-                    className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border backdrop-blur-sm transition-all duration-300 cursor-default ${rc.borderColor} ${rc.bgColor}`}
+                    key={rc.value}
+                    className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border backdrop-blur-sm transition-all duration-300 cursor-default ${rc.borderColor} ${rc.bgColor} hover:scale-[1.02]`}
                   >
                     <div className={rc.color}>{rc.icon}</div>
                     <div>
                       <p className="text-[11px] font-bold text-white/90">{rc.label}</p>
-                      <p className="text-[9px] text-slate-400 font-medium">{rc.desc}</p>
+                      <p className="text-[9px] text-slate-400 font-medium leading-tight">{rc.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -187,7 +185,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right Column - Login form */}
+      {/* Right Column - Registration form */}
       <div className="flex-1 flex items-center justify-center p-6 sm:p-8 bg-gradient-to-br from-slate-50 via-white to-slate-100 relative">
         {/* Subtle pattern background */}
         <div className="absolute inset-0 opacity-[0.02]" style={{backgroundImage: 'radial-gradient(circle at 1px 1px, #334155 1px, transparent 0)', backgroundSize: '24px 24px'}} />
@@ -210,21 +208,54 @@ export default function LoginPage() {
           {/* Form Card */}
           <div className="p-8 sm:p-10 rounded-3xl bg-white border border-slate-200/80 shadow-2xl shadow-slate-200/50">
             <div className="mb-7">
-              <h2 className="text-2xl font-black tracking-tight text-slate-900">Welcome back</h2>
-              <p className="text-sm text-slate-500 mt-1.5 font-medium">Sign in to access your operations dashboard</p>
+              <h2 className="text-2xl font-black tracking-tight text-slate-900 flex items-center gap-2">
+                Create your account
+              </h2>
+              <p className="text-sm text-slate-500 mt-1.5 font-medium">Get access to TransitOps Logistics Suite</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {/* Error Notification */}
               {error && (
                 <div className="p-4 rounded-xl bg-red-50 border border-red-200/50 flex items-start gap-3 text-xs text-red-800">
                   <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold">Sign in failed</p>
+                    <p className="font-semibold">Registration failed</p>
                     <p className="mt-0.5 text-red-700/90 leading-relaxed">{error}</p>
                   </div>
                 </div>
               )}
+
+              {/* Success Notification */}
+              {success && (
+                <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200/50 flex items-start gap-3 text-xs text-emerald-800">
+                  <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold">Success</p>
+                    <p className="mt-0.5 text-emerald-700/90 leading-relaxed">{success}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Full Name Field */}
+              <div className="space-y-2">
+                <label htmlFor="name" className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Full Name
+                </label>
+                <div className="relative group">
+                  <span className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none z-10">
+                    <User className="w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
+                  </span>
+                  <input
+                    id="name"
+                    type="text"
+                    placeholder="e.g. Marcus V."
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full pl-11 pr-4 py-3 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all duration-200"
+                  />
+                </div>
+              </div>
 
               {/* Email Field */}
               <div className="space-y-2">
@@ -257,77 +288,60 @@ export default function LoginPage() {
                   </span>
                   <input
                     id="password"
-                    type={showPassword ? "text" : "password"}
+                    type="password"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-11 pr-12 py-3 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all duration-200"
+                    className="w-full pl-11 pr-4 py-3 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all duration-200"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-3.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
                 </div>
               </div>
 
-              {/* Extra Row: Remember me / Forgot pwd */}
-              <div className="flex items-center justify-between text-xs font-semibold">
-                <label className="flex items-center gap-2.5 text-slate-600 select-none cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 text-amber-600 border-slate-300 rounded focus:ring-amber-500 focus:ring-offset-0 accent-amber-500 cursor-pointer"
-                  />
-                  Remember me
+              {/* Role Select Dropdown */}
+              <div className="space-y-2">
+                <label htmlFor="role" className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Role (RBAC Scope)
                 </label>
-                <a href="#" className="text-amber-600 hover:text-amber-700 transition-colors">
-                  Forgot password?
-                </a>
+                <div className="relative group">
+                  <span className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none z-10">
+                    <Shield className="w-4 h-4 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
+                  </span>
+                  <select
+                    id="role"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value as RoleName)}
+                    className="w-full pl-11 pr-10 py-3 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all duration-200 appearance-none cursor-pointer"
+                  >
+                    <option value="FLEET_MANAGER">Fleet Manager</option>
+                    <option value="DISPATCHER">Dispatcher</option>
+                    <option value="SAFETY_OFFICER">Safety Officer</option>
+                    <option value="FINANCIAL_ANALYST">Financial Analyst</option>
+                  </select>
+                  <span className="absolute inset-y-0 right-3.5 flex items-center pointer-events-none text-slate-400">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </span>
+                </div>
               </div>
 
-              {/* Sign In Button */}
+              {/* Submit Button */}
               <button
                 type="submit"
                 className="w-full py-3.5 px-4 rounded-xl text-white font-bold text-sm bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-lg shadow-amber-200/50 hover:shadow-amber-300/50 transition-all duration-300 active:scale-[0.98] mt-1 flex items-center justify-center gap-2 cursor-pointer"
               >
-                Sign In
+                <UserPlus className="w-4 h-4" />
+                Create Account
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
 
-            {/* Registration link */}
+            {/* Login link switcher */}
             <div className="mt-6 text-center text-xs text-slate-500 font-medium">
-              New to TransitOps?{" "}
-              <Link href="/register" className="text-amber-600 font-extrabold hover:text-amber-700 hover:underline transition-all">
-                Create an account
+              Already have an account?{" "}
+              <Link href="/login" className="text-amber-600 font-extrabold hover:text-amber-700 hover:underline transition-all">
+                Sign In instead
               </Link>
-            </div>
-          </div>
-
-          {/* Quick Demo Autofill section - outside the card for cleaner look */}
-          <div className="mt-6 p-5 rounded-2xl bg-white/60 border border-slate-200/50 backdrop-blur-sm">
-            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
-              <span className="w-1 h-1 rounded-full bg-amber-400" />
-              Quick Autofill (Hackathon Demo)
-            </h3>
-            <div className="grid grid-cols-2 gap-2">
-              {roleCards.map((rc) => (
-                <button
-                  key={rc.role}
-                  type="button"
-                  onClick={() => handleAutofill(rc.role)}
-                  className="flex items-center gap-2 px-3 py-2 text-[11px] font-bold rounded-xl border border-slate-200/60 bg-white/80 text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all text-left cursor-pointer group"
-                >
-                  <span className={`${rc.color.replace('400', '500')} opacity-70 group-hover:opacity-100 transition-opacity`}>
-                    {rc.icon}
-                  </span>
-                  <span className="truncate">{rc.label}</span>
-                </button>
-              ))}
             </div>
           </div>
         </div>

@@ -5,6 +5,7 @@
 | Route | Page | Access (min. role requirement) |
 |---|---|---|
 | `/login` | Sign In | Public |
+| `/register` | Sign Up (Registration) | Public |
 | `/dashboard` | Dashboard | All authenticated roles (KPI set may vary by role) |
 | `/fleet` | Vehicle Registry | Fleet Manager (Full), Dispatcher (View), Financial Analyst (View) |
 | `/drivers` | Drivers & Safety Profiles | Safety Officer (Full), Fleet Manager (Full) |
@@ -25,13 +26,12 @@ to `/dashboard` with a permission notice.
 **Fields:**
 - Email
 - Password
-- Role (select) — Fleet Manager / Dispatcher / Safety Officer / Financial Analyst
 - Remember me (checkbox)
 - Forgot password (link)
+- Sign Up redirect link (link to `/register`)
 
 **Behavior:**
-- On submit, credentials are verified against the `User` table; role selection
-  must match the account's assigned role.
+- On submit, credentials are verified by email lookup. Role-based privileges are automatically loaded from their registered profile.
 - Invalid credentials show an inline error.
 - After 5 failed attempts, the account is locked and the error message informs
   the user accordingly.
@@ -39,7 +39,24 @@ to `/dashboard` with a permission notice.
 
 ---
 
-### 2.2 Dashboard (`/dashboard`)
+### 2.2 Register (`/register`)
+**Purpose:** Allow new operators to register their name, email, and choose their department role.
+
+**Fields:**
+- Full Name
+- Email Address
+- Password
+- Role (select) — Fleet Manager / Dispatcher / Safety Officer / Financial Analyst
+- Sign In redirect link (link to `/login`)
+
+**Behavior:**
+- Validates that email and role are unique.
+- Persists newly registered accounts dynamically in `localStorage`.
+- Shows a registration success box and auto-redirects the user back to `/login` to sign in.
+
+---
+
+### 2.3 Dashboard (`/dashboard`)
 **Purpose:** At-a-glance operational snapshot for quick decision-making.
 
 **Components:**
@@ -58,7 +75,7 @@ to `/dashboard` with a permission notice.
 
 ---
 
-### 2.3 Fleet — Vehicle Registry (`/fleet`)
+### 2.4 Fleet — Vehicle Registry (`/fleet`)
 **Purpose:** Maintain the master list of vehicles.
 
 **Fields per vehicle:** Registration Number (unique), Name/Model, Type,
@@ -66,8 +83,8 @@ Capacity, Odometer, Acquisition Cost, Status.
 
 **Components:**
 - Filters: Type, Status, plus a registration-number search box.
-- Vehicle table listing all fields above with status badges (Available /
-  On Trip / In Shop / Retired).
+- Vehicle grid showing all fields above with status badges (Available /
+  On Trip / In Shop / Retired) and specs.
 - "Add Vehicle" action opens a form to create a new vehicle record.
 
 **Behavior:**
@@ -79,17 +96,17 @@ Capacity, Odometer, Acquisition Cost, Status.
 
 ---
 
-### 2.4 Drivers — Drivers & Safety Profiles (`/drivers`)
+### 2.5 Drivers — Drivers & Safety Profiles (`/drivers`)
 **Purpose:** Maintain driver profiles and compliance status.
 
-**Fields per driver:** Name, License Number, License Category, License
+**Fields per driver:** Name, Email, License Number, License Category, License
 Expiry, Contact Number, Trip Completion %, Safety Status, Duty Status.
 
 **Components:**
-- Driver table with Safety and Status badges (Available / On Trip / Off Duty /
-  Suspended).
-- Manual status toggle control (Available / On Trip / Off Duty / Suspended).
-- "Add Driver" action opens a form to create a new driver record.
+- Driver card grid showing Safety, Status badges (Available / On Trip / Off Duty /
+  Suspended), and details.
+- Inline status toggle select dropdown directly inside each card.
+- "Add Driver" action opens a form to register a new driver record (requiring Email).
 
 **Behavior:**
 - Drivers with an expired license or `Suspended` status are flagged and
@@ -98,19 +115,17 @@ Expiry, Contact Number, Trip Completion %, Safety Status, Duty Status.
 
 ---
 
-### 2.5 Trips — Trip Dispatcher (`/trips`)
+### 2.6 Trips — Trip Dispatcher (`/trips`)
 **Purpose:** Create and manage trips through their lifecycle.
 
 **Components:**
 - Trip lifecycle stepper: Draft → Dispatched → Completed → Cancelled.
 - Create Trip form: Source, Destination, Vehicle (available only), Driver
-  (available only), Cargo Weight, Planned Distance.
-- Inline validation banner showing capacity check result (e.g., vehicle
-  capacity vs. cargo weight, with a blocking error if exceeded).
-- "Dispatch" and "Cancel" actions (Dispatch disabled until validation passes).
+  (available only), Cargo Weight, Planned Distance. (Only visible to Dispatcher/Fleet Manager; hidden from Safety Officer).
+- Inline validation banner showing capacity check result.
+- Actions: "Cancel", "Dispatch", and "Complete Trip" buttons. (Only visible to Dispatcher/Fleet Manager; hidden from Safety Officer, showing passive status labels like "In Transit" instead).
 - Live Board: list of current trips with route, assigned vehicle/driver,
-  status badge, and ETA or status note (e.g., "Awaiting driver", "Vehicle sent
-  to shop").
+  status badge, and ETA or status note. (Spans full 12-column grid width when form is hidden).
 
 **Behavior:**
 - Vehicle and driver dropdowns only list entities currently `Available`.
@@ -125,7 +140,7 @@ Expiry, Contact Number, Trip Completion %, Safety Status, Duty Status.
 
 ---
 
-### 2.6 Maintenance (`/maintenance`)
+### 2.7 Maintenance (`/maintenance`)
 **Purpose:** Log and track vehicle service records.
 
 **Fields:** Vehicle, Service Type, Cost, Date, Status.
@@ -145,7 +160,7 @@ Expiry, Contact Number, Trip Completion %, Safety Status, Duty Status.
 
 ---
 
-### 2.7 Fuel & Expense Management (`/fuel-expenses`)
+### 2.8 Fuel & Expense Management (`/fuel-expenses`)
 **Purpose:** Track fuel consumption and other trip/vehicle-related expenses.
 
 **Components:**
@@ -161,7 +176,7 @@ Expiry, Contact Number, Trip Completion %, Safety Status, Duty Status.
 
 ---
 
-### 2.8 Reports & Analytics (`/analytics`)
+### 2.9 Reports & Analytics (`/analytics`)
 **Purpose:** Present derived operational and financial metrics.
 
 **Components:**
@@ -179,7 +194,7 @@ Expiry, Contact Number, Trip Completion %, Safety Status, Duty Status.
 
 ---
 
-### 2.9 Settings & RBAC (`/settings`)
+### 2.10 Settings & RBAC (`/settings`)
 **Purpose:** Configure general system settings and review role permissions.
 
 **Components:**
