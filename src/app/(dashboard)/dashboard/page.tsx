@@ -39,8 +39,8 @@ export default function DashboardPage() {
 
   // Safety Officer calculations
   const suspendedDriversCount = drivers.filter((d) => d.status === "SUSPENDED").length;
-  const avgSafetyScore = drivers.length > 0 
-    ? Math.round(drivers.reduce((acc, d) => acc + d.safetyScore, 0) / drivers.length) 
+  const avgSafetyScore = drivers.length > 0
+    ? Math.round(drivers.reduce((acc, d) => acc + d.safetyScore, 0) / drivers.length)
     : 100;
   const expiredLicensesCount = drivers.filter((d) => new Date(d.licenseExpiry) < new Date()).length;
   const availDriversCount = drivers.filter((d) => d.status === "AVAILABLE").length;
@@ -49,7 +49,7 @@ export default function DashboardPage() {
   const totalFuelCost = fuelLogs.reduce((acc, f) => acc + Number(f.cost), 0);
   const totalMaintCost = maintenanceLogs.reduce((acc, m) => acc + Number(m.cost), 0);
   const totalOpCost = totalFuelCost + totalMaintCost;
-  
+
   const getTripRevenue = (t: Trip) => {
     if (t.status !== "COMPLETED") return 0;
     const distance = Number(t.actualDistanceKm || t.plannedDistanceKm || 0);
@@ -85,7 +85,7 @@ export default function DashboardPage() {
     if (!t.vehicleId) return true; // Draft/unassigned trips
     const vehicle = vehicles.find((v) => v.id === t.vehicleId);
     if (!vehicle) return false;
-    
+
     const matchType = vehicleTypeFilter === "ALL" || vehicle.type === vehicleTypeFilter;
     const matchRegion = regionFilter === "ALL" || vehicle.region.toUpperCase() === regionFilter.toUpperCase();
     return matchType && matchRegion;
@@ -98,8 +98,8 @@ export default function DashboardPage() {
   const driversOnDuty = drivers.filter(d => d.status === "AVAILABLE" || d.status === "ON_TRIP").length;
 
   // Dynamic Utilization based on filters
-  const dynamicUtilization = totalVehiclesCount > 0 
-    ? Math.round((activeVehCount / totalVehiclesCount) * 100) 
+  const dynamicUtilization = totalVehiclesCount > 0
+    ? Math.round((activeVehCount / totalVehiclesCount) * 100)
     : 0;
 
   // Get status color styling for badge
@@ -370,7 +370,7 @@ export default function DashboardPage() {
           <Filter className="w-4 h-4 text-slate-400" />
           <span>Filters:</span>
         </div>
-        
+
         <div className="flex flex-wrap items-center gap-3">
           {/* Vehicle Type */}
           <div className="flex flex-col gap-1">
@@ -429,7 +429,7 @@ export default function DashboardPage() {
         {/* Left Columns - Recent Trips Table */}
         <div className="lg:col-span-2 rounded-2xl glass-panel p-6 border border-white/60">
           <h3 className="font-extrabold text-sm text-slate-800 uppercase tracking-wider mb-4">Recent Trips</h3>
-          
+
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -496,7 +496,7 @@ export default function DashboardPage() {
         <div className="rounded-2xl glass-panel p-6 border border-white/60 flex flex-col justify-between">
           <div>
             <h3 className="font-extrabold text-sm text-slate-800 uppercase tracking-wider mb-6">Vehicle Status</h3>
-            
+
             <div className="space-y-5">
               {/* Available */}
               <div className="space-y-1">
@@ -508,9 +508,9 @@ export default function DashboardPage() {
                   <span>{availVehCount} ({totalVehiclesCount > 0 ? Math.round(availVehCount / totalVehiclesCount * 100) : 0}%)</span>
                 </div>
                 <div className="w-full h-3 rounded-full bg-slate-100/50 border border-slate-200/20 overflow-hidden">
-                  <div 
-                    className="h-full bg-emerald-500 rounded-full transition-all duration-500" 
-                    style={{ width: `${totalVehiclesCount > 0 ? (availVehCount / totalVehiclesCount * 100) : 0}%` }} 
+                  <div
+                    className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                    style={{ width: `${totalVehiclesCount > 0 ? (availVehCount / totalVehiclesCount * 100) : 0}%` }}
                   />
                 </div>
               </div>
@@ -525,9 +525,9 @@ export default function DashboardPage() {
                   <span>{activeVehCount} ({totalVehiclesCount > 0 ? Math.round(activeVehCount / totalVehiclesCount * 100) : 0}%)</span>
                 </div>
                 <div className="w-full h-3 rounded-full bg-slate-100/50 border border-slate-200/20 overflow-hidden">
-                  <div 
-                    className="h-full bg-blue-500 rounded-full transition-all duration-500" 
-                    style={{ width: `${totalVehiclesCount > 0 ? (activeVehCount / totalVehiclesCount * 100) : 0}%` }} 
+                  <div
+                    className="h-full bg-blue-500 rounded-full transition-all duration-500"
+                    style={{ width: `${totalVehiclesCount > 0 ? (activeVehCount / totalVehiclesCount * 100) : 0}%` }}
                   />
                 </div>
               </div>
@@ -542,9 +542,9 @@ export default function DashboardPage() {
                   <span>{shopVehCount} ({totalVehiclesCount > 0 ? Math.round(shopVehCount / totalVehiclesCount * 100) : 0}%)</span>
                 </div>
                 <div className="w-full h-3 rounded-full bg-slate-100/50 border border-slate-200/20 overflow-hidden">
-                  <div 
-                    className="h-full bg-orange-500 rounded-full transition-all duration-500" 
-                    style={{ width: `${totalVehiclesCount > 0 ? (shopVehCount / totalVehiclesCount * 100) : 0}%` }} 
+                  <div
+                    className="h-full bg-orange-500 rounded-full transition-all duration-500"
+                    style={{ width: `${totalVehiclesCount > 0 ? (shopVehCount / totalVehiclesCount * 100) : 0}%` }}
                   />
                 </div>
               </div>
@@ -559,9 +559,9 @@ export default function DashboardPage() {
                   <span>{retiredVehCount}</span>
                 </div>
                 <div className="w-full h-3 rounded-full bg-slate-100/50 border border-slate-200/20 overflow-hidden">
-                  <div 
-                    className="h-full bg-red-500 rounded-full transition-all duration-500" 
-                    style={{ width: `${vehicles.length > 0 ? (retiredVehCount / vehicles.length * 100) : 0}%` }} 
+                  <div
+                    className="h-full bg-red-500 rounded-full transition-all duration-500"
+                    style={{ width: `${vehicles.length > 0 ? (retiredVehCount / vehicles.length * 100) : 0}%` }}
                   />
                 </div>
               </div>

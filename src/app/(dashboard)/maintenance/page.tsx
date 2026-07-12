@@ -108,7 +108,7 @@ export default function MaintenancePage() {
                 className="w-full px-3 py-2 text-xs rounded-lg glass-input border-slate-200/70 disabled:opacity-65 disabled:bg-slate-50/20 disabled:cursor-not-allowed text-slate-800 font-semibold appearance-none"
               >
                 <option value="">-- Select Vehicle --</option>
-                {vehicles.filter(v => v.status !== "RETIRED").map((v) => (
+                {vehicles.filter(v => v.status === "AVAILABLE").map((v) => (
                   <option key={v.id} value={v.id}>
                     {v.nameModel} ({v.registrationNo}) - Current status: {v.status.replace("_", " ")}
                   </option>

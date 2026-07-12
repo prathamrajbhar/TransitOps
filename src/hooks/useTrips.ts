@@ -29,7 +29,11 @@ export const useTrips = () => {
       if (!res.ok) throw new Error(body.error || "Failed to create trip");
       return body;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: TRIPS_KEY }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TRIPS_KEY });
+      queryClient.invalidateQueries({ queryKey: ["vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["drivers"] });
+    },
   });
 
   const dispatchMutation = useMutation({
@@ -43,7 +47,11 @@ export const useTrips = () => {
       if (!res.ok) throw new Error(body.error || "Failed to dispatch trip");
       return body;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: TRIPS_KEY }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TRIPS_KEY });
+      queryClient.invalidateQueries({ queryKey: ["vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["drivers"] });
+    },
   });
 
   const cancelMutation = useMutation({
@@ -57,7 +65,11 @@ export const useTrips = () => {
       if (!res.ok) throw new Error(body.error || "Failed to cancel trip");
       return body;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: TRIPS_KEY }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TRIPS_KEY });
+      queryClient.invalidateQueries({ queryKey: ["vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["drivers"] });
+    },
   });
 
   const completeMutation = useMutation({
@@ -71,7 +83,11 @@ export const useTrips = () => {
       if (!res.ok) throw new Error(body.error || "Failed to complete trip");
       return body;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: TRIPS_KEY }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TRIPS_KEY });
+      queryClient.invalidateQueries({ queryKey: ["vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["drivers"] });
+    },
   });
 
   const createTrip = async (input: Record<string, unknown>) => {

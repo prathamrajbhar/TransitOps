@@ -109,29 +109,28 @@ export default function RegisterPage() {
   ];
 
   return (
-    <main className="min-h-screen flex font-sans">
-      {/* Left Column - Cinematic video background with brand overlay */}
-      <div className="hidden lg:flex w-[55%] text-white flex-col justify-between relative overflow-hidden">
-        {/* Full-bleed Background Video */}
-        <video
-          className="absolute inset-0 w-full h-full object-cover z-0"
-          src="/login_bg.mp4"
-          autoPlay
-          loop
-          muted
-          playsInline
-        />
-
-        {/* Multi-layer gradient overlays for cinematic depth */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/70 to-slate-900/40 z-[1]" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-slate-950/60 z-[1]" />
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-900/10 via-transparent to-blue-900/15 z-[1]" />
-
-        {/* Content over video */}
-        <div className="relative z-10 flex flex-col justify-between h-full p-10 xl:p-14">
-
+    <main className="min-h-screen w-full relative flex items-center justify-center font-sans overflow-hidden bg-slate-950 p-4 sm:p-6 md:p-8">
+      {/* Full-bleed Background Video */}
+      <video
+        className="absolute inset-0 w-full h-full object-cover z-0"
+        src="/login_bg.mp4"
+        autoPlay
+        loop
+        muted
+        playsInline
+      />
+      
+      {/* Multi-layer gradient overlays for cinematic depth (brighter view) */}
+      <div className="absolute inset-0 bg-slate-950/45 z-[1]" />
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-slate-950/30 z-[1]" />
+      
+      {/* Content wrapper floating above video */}
+      <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8 animate-in fade-in duration-700">
+        
+        {/* Left column: Brand & Hero text */}
+        <div className="flex flex-col justify-between space-y-8 max-w-xl text-white lg:text-left text-center">
           {/* Brand header */}
-          <div className="flex items-center gap-3.5">
+          <div className="flex items-center gap-3.5 lg:justify-start justify-center">
             <div className="w-11 h-11 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shadow-lg shadow-amber-500/10 backdrop-blur-sm">
               <svg
                 className="w-6 h-6 text-amber-400"
@@ -150,82 +149,38 @@ export default function RegisterPage() {
               </svg>
             </div>
             <div>
-              <h2 className="font-extrabold text-2xl tracking-tight text-white leading-none">TransitOps</h2>
-              <p className="text-[10px] text-amber-400/90 font-bold uppercase tracking-[0.2em] mt-0.5">Smart Transport Operations</p>
+              <h2 className="font-black text-2xl tracking-tight !text-white leading-none drop-shadow-md">TransitOps</h2>
+              <p className="text-[10px] !text-amber-400 font-extrabold uppercase tracking-[0.2em] mt-0.5">Smart Transport Operations</p>
             </div>
           </div>
 
-          {/* Hero Content - centered */}
-          <div className="space-y-8 max-w-lg">
-            <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm text-[11px] font-semibold text-slate-300">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Enterprise Fleet Management Platform
-              </div>
-              <h1 className="text-5xl xl:text-6xl font-black leading-[1.05] tracking-tight">
-                <span className="text-white">Join the</span> <br />
-                <span className="bg-gradient-to-r from-amber-400 via-amber-300 to-orange-400 bg-clip-text text-transparent">
-                  operations team.
-                </span>
-              </h1>
-              <p className="text-[15px] text-slate-400 leading-relaxed font-medium max-w-md">
-                Create your account and start managing your fleet with role-based access controls tailored to your responsibilities.
-              </p>
+          {/* Hero Content - clean & cinematic */}
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm text-[10px] font-bold !text-amber-400 uppercase tracking-widest lg:mx-0 mx-auto">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              Enterprise Fleet Platform
             </div>
-
-            {/* Role privilege cards - horizontal */}
-            <div className="space-y-3 pt-2">
-              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Available Roles</p>
-              <div className="grid grid-cols-2 gap-2.5">
-                {roleCards.map((rc) => (
-                  <div
-                    key={rc.role}
-                    className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border backdrop-blur-sm transition-all duration-300 cursor-default ${rc.borderColor} ${rc.bgColor}`}
-                  >
-                    <div className={rc.color}>{rc.icon}</div>
-                    <div>
-                      <p className="text-[11px] font-bold text-white/90">{rc.label}</p>
-                      <p className="text-[9px] text-slate-400 font-medium">{rc.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <h1 className="text-5xl sm:text-6xl xl:text-7xl font-black leading-[1.02] tracking-tighter !text-white drop-shadow-lg">
+              Join the <br />
+              <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-300 bg-clip-text text-transparent">
+                operations team.
+              </span>
+            </h1>
+            <p className="text-base sm:text-lg !text-slate-100 leading-relaxed font-semibold max-w-md lg:mx-0 mx-auto drop-shadow-sm">
+              Create your account and start managing your fleet with role-based access controls tailored to your responsibilities.
+            </p>
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium">
+          <div className="flex items-center justify-between text-[11px] !text-slate-300 font-bold lg:justify-between justify-center gap-6">
             <span className="tracking-wider">TRANSITOPS &copy; 2026</span>
-            <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              <span className="font-bold tracking-wider">RBAC RULE SECURE</span>
-            </div>
           </div>
         </div>
-      </div>
 
-      {/* Right Column - Registration form */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-8 bg-gradient-to-br from-slate-50 via-white to-slate-100 relative">
-        {/* Subtle pattern background */}
-        <div className="absolute inset-0 opacity-[0.02]" style={{backgroundImage: 'radial-gradient(circle at 1px 1px, #334155 1px, transparent 0)', backgroundSize: '24px 24px'}} />
-
-        <div className="w-full max-w-md relative z-10">
-          {/* Mobile brand header (hidden on desktop) */}
-          <div className="flex items-center gap-3 mb-8 lg:hidden">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-200 flex items-center justify-center">
-              <svg className="w-5 h-5 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <path d="M9 3v18" /><path d="M15 3v18" /><path d="M3 9h18" /><path d="M3 15h18" />
-              </svg>
-            </div>
-            <div>
-              <h2 className="font-extrabold text-xl text-slate-900">TransitOps</h2>
-              <p className="text-[9px] text-amber-600 font-bold uppercase tracking-wider">Smart Transport Operations</p>
-            </div>
-          </div>
-
-          {/* Form Card */}
-          <div className="p-8 sm:p-10 rounded-3xl bg-white border border-slate-200/80 shadow-2xl shadow-slate-200/50">
+        {/* Right column: Glassmorphic form card */}
+        <div className="w-full max-w-md">
+          {/* Light Glass Card */}
+          <div className="p-8 sm:p-10 rounded-3xl bg-white/90 border border-white/20 backdrop-blur-xl shadow-2xl shadow-slate-900/30">
             <div className="mb-7">
               <h2 className="text-2xl font-black tracking-tight text-slate-900">Create account</h2>
               <p className="text-sm text-slate-500 mt-1.5 font-medium">Get started with your operations dashboard</p>
@@ -268,7 +223,7 @@ export default function RegisterPage() {
                     placeholder="e.g. Alex Rivera"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all duration-200"
+                    className="w-full pl-11 pr-4 py-3 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all duration-200 font-medium text-slate-900 placeholder-slate-400"
                   />
                 </div>
               </div>
@@ -288,7 +243,7 @@ export default function RegisterPage() {
                     placeholder="name@transitops.in"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all duration-200"
+                    className="w-full pl-11 pr-4 py-3 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all duration-200 font-medium text-slate-900 placeholder-slate-400"
                   />
                 </div>
               </div>
@@ -308,7 +263,7 @@ export default function RegisterPage() {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all duration-200"
+                    className="w-full pl-11 pr-4 py-3 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all duration-200 font-medium text-slate-900 placeholder-slate-400"
                   />
                 </div>
               </div>
@@ -326,7 +281,7 @@ export default function RegisterPage() {
                     id="role"
                     value={role}
                     onChange={(e) => setRole(e.target.value as RoleName)}
-                    className="w-full pl-11 pr-4 py-3 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all duration-200 appearance-none cursor-pointer"
+                    className="w-full pl-11 pr-4 py-3 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all duration-200 appearance-none cursor-pointer font-medium text-slate-900"
                   >
                     <option value="FLEET_MANAGER">Fleet Manager</option>
                     <option value="DISPATCHER">Dispatcher</option>
@@ -340,7 +295,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 px-4 rounded-xl text-white font-bold text-sm bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-lg shadow-amber-200/50 hover:shadow-amber-300/50 transition-all duration-300 active:scale-[0.98] mt-1 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full py-3.5 px-4 rounded-xl text-white font-bold text-sm bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-lg shadow-amber-500/20 hover:shadow-amber-500/35 transition-all duration-300 active:scale-[0.98] mt-1 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
               >
                 {loading ? (
                   <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />

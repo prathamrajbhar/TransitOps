@@ -208,11 +208,14 @@ export default function FuelExpensesPage() {
           </div>
           <div>
             <h4 className="font-extrabold text-sm text-slate-800 uppercase tracking-wider">Total Operational Cost (Auto)</h4>
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Sum of Fuel Logs + Active Maintenance Servicing Costs</p>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">Sum of Fuel Logs + Toll / Misc / Maintenance Expenses</p>
           </div>
         </div>
         <div className="text-2xl font-black text-orange-600">
-          {formatCurrency(totalOperationalCost)}
+          {formatCurrency(
+            fuelLogs.reduce((acc, f) => acc + Number(f.cost), 0) +
+            expenses.reduce((acc, e) => acc + Number(e.total), 0)
+          )}
         </div>
       </div>
 

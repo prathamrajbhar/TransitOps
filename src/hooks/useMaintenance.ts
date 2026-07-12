@@ -29,7 +29,10 @@ export const useMaintenance = () => {
       if (!res.ok) throw new Error(body.error || "Failed to create maintenance record");
       return body;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: MAINTENANCE_KEY }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: MAINTENANCE_KEY });
+      queryClient.invalidateQueries({ queryKey: ["vehicles"] });
+    },
   });
 
   const closeMutation = useMutation({
@@ -43,7 +46,10 @@ export const useMaintenance = () => {
       if (!res.ok) throw new Error(body.error || "Failed to close maintenance record");
       return body;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: MAINTENANCE_KEY }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: MAINTENANCE_KEY });
+      queryClient.invalidateQueries({ queryKey: ["vehicles"] });
+    },
   });
 
   const addMaintenanceLog = async (input: Record<string, unknown>) => {
