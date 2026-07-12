@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useMaintenance } from "@/hooks/useMaintenance";
 import { useMockData } from "@/context/MockDataContext";
-import { Wrench, ShieldAlert, Plus, AlertCircle, CheckCircle2, Hammer } from "lucide-react";
+import { ShieldAlert, AlertCircle, CheckCircle2, Hammer } from "lucide-react";
 
 export default function MaintenancePage() {
   const { maintenanceLogs, addMaintenanceLog, completeMaintenanceLog } = useMaintenance();
@@ -15,7 +15,7 @@ export default function MaintenancePage() {
   const [serviceType, setServiceType] = useState("Oil Change");
   const [cost, setCost] = useState("2500");
   const [serviceDate, setServiceDate] = useState("2026-07-12");
-  const [status, setStatus] = useState<any>("ACTIVE");
+  const [status, setStatus] = useState<'ACTIVE' | 'COMPLETED'>("ACTIVE");
   const [error, setError] = useState<string | null>(null);
 
   const canModify = currentUser?.role === "FLEET_MANAGER";
@@ -156,7 +156,7 @@ export default function MaintenancePage() {
               <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Status</label>
               <select
                 value={status}
-                onChange={(e) => setStatus(e.target.value)}
+                onChange={(e) => setStatus(e.target.value as "ACTIVE" | "COMPLETED")}
                 disabled={!canModify}
                 className="w-full px-3 py-2 text-xs rounded-lg glass-input border-slate-200/70 disabled:opacity-65 disabled:bg-slate-50/20 disabled:cursor-not-allowed text-slate-800 font-semibold appearance-none"
               >

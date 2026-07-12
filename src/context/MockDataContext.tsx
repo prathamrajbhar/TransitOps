@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useLayoutEffect, useEffect } from "react";
 
 // --- ENUMS & TYPES ---
 
@@ -541,7 +541,8 @@ export const MockDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [lockedAccounts, setLockedAccounts] = useState<Record<string, string | null>>({});
 
   // 1. Sync from localStorage on mount (hydration safety)
-  useEffect(() => {
+  useLayoutEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsClient(true);
     const getLocal = <T,>(key: string, fallback: T): T => {
       const data = localStorage.getItem(`transitops_${key}`);
@@ -573,7 +574,7 @@ export const MockDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, []);
 
   // 2. Persist states helper
-  const saveToLocal = (key: string, data: any) => {
+  const saveToLocal = (key: string, data: unknown) => {
     if (typeof window !== "undefined") {
       localStorage.setItem(`transitops_${key}`, JSON.stringify(data));
     }
@@ -582,15 +583,12 @@ export const MockDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Helper effect to trigger license expiry checks on loading
   useEffect(() => {
     if (!isClient) return;
-    const now = new Date();
-    // In our seed John has an expired license. If drivers are loaded, check their expiry dates
-    // and flag if needed. The validation happens on assignment.
   }, [isClient]);
 
   // --- ACTIONS IMPLEMENTATION ---
 
   // Authentication
-  const login = (email: string, role?: RoleName) => {
+  const login = (email: string) => {
     // Check account lock
     const lockedUntilStr = lockedAccounts[email];
     if (lockedUntilStr) {

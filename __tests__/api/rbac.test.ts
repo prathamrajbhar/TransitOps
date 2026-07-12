@@ -3,11 +3,6 @@
  * Comprehensive RBAC and authorization tests
  */
 describe('RBAC & Authorization', () => {
-  let adminToken: string;
-  let driverToken: string;
-  let dispatcherToken: string;
-  let vehicleId: string;
-
   beforeAll(async () => {
     // Setup: Create users with different roles
     // TODO: Implement setup

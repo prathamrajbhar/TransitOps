@@ -60,7 +60,7 @@ class APITestClient {
     return this.session;
   }
 
-  async request(path: string, options: any = {}): Promise<Response> {
+  async request(path: string, options: Record<string, unknown> = {}): Promise<Response> {
     const url = `${this.baseUrl}${path}`;
     const headers = {
       'Content-Type': 'application/json',

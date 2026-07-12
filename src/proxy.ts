@@ -16,8 +16,17 @@ import { SESSION_COOKIE_NAME } from "./lib/constants";
 
 // ─── Route configuration ─────────────────────────────────────────
 
-const PROTECTED_ROUTES = ["/dashboard"];
-const AUTH_ROUTES = ["/login", "/signup"];
+const PROTECTED_ROUTES = [
+  "/dashboard",
+  "/fleet",
+  "/drivers",
+  "/trips",
+  "/maintenance",
+  "/fuel-expenses",
+  "/analytics",
+  "/settings"
+];
+const AUTH_ROUTES = ["/login", "/register"];
 const PROTECTED_API_PREFIX = "/api";
 // These API routes are always public (no session required)
 const PUBLIC_API_ROUTES = [
@@ -28,15 +37,35 @@ const PUBLIC_API_ROUTES = [
   "/api/health",
 ];
 
-// ─── Middleware ───────────────────────────────────────────────────
+// ─── Proxy handler ───────────────────────────────────────────────
 
-export default async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Decode the session token from cookie (no DB hit — optimistic check)
   const token = req.cookies.get(SESSION_COOKIE_NAME)?.value;
-  const session = await decrypt(token);
-  const isAuthenticated = !!session?.userId;
+  let session = null;
+  let isAuthenticated = false;
+  let isMockSession = false;
+
+  if (token) {
+    session = await decrypt(token);
+    if (session?.userId) {
+      isAuthenticated = true;
+    } else {
+      // Fallback for mock session JSON cookies
+      try {
+        const decoded = decodeURIComponent(token);
+        const parsed = JSON.parse(decoded);
+        if (parsed && (parsed.id || parsed.userId)) {
+          isAuthenticated = true;
+          isMockSession = true;
+        }
+      } catch (e) {
+        // Ignore parsing error
+      }
+    }
+  }
 
   // ── Protected page routes ──────────────────────────────────────
   const isProtectedPage = PROTECTED_ROUTES.some((route) =>
@@ -71,7 +100,7 @@ export default async function middleware(req: NextRequest) {
   // ── Refresh session on every authenticated request ─────────────
   // (Slides the 7-day expiry window forward)
   const response = NextResponse.next();
-  if (isAuthenticated && token) {
+  if (isAuthenticated && token && !isMockSession) {
     // Re-set the cookie with extended expiry
     const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     response.cookies.set(SESSION_COOKIE_NAME, token, {

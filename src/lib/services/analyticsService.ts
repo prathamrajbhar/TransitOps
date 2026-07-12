@@ -1,6 +1,6 @@
-import { prisma } from "@/src/lib/prisma";
-import { orgScope } from "@/src/lib/rbac";
-import type { AuthUser } from "@/src/types/rbac";
+import { prisma } from "@/lib/prisma";
+import { orgScope } from "@/lib/rbac";
+import type { AuthUser } from "@/types/rbac";
 
 export class AnalyticsService {
   static async getDashboard(user: AuthUser) {

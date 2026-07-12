@@ -25,10 +25,10 @@ describe('Trips API - State Machine', () => {
           startTime: new Date().toISOString(),
         }),
       });
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(201);
-      expect(data.data.status).toBe('SCHEDULED');
-      tripId = data.data.id;
+      expect(_data.data.status).toBe('SCHEDULED');
+      tripId = _data.data.id;
     });
 
     it('should dispatch trip (SCHEDULED → IN_PROGRESS)', async () => {
@@ -37,9 +37,9 @@ describe('Trips API - State Machine', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
       });
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(200);
-      expect(data.data.status).toBe('IN_PROGRESS');
+      expect(_data.data.status).toBe('IN_PROGRESS');
     });
 
     it('should complete trip (IN_PROGRESS → COMPLETED)', async () => {
@@ -51,18 +51,18 @@ describe('Trips API - State Machine', () => {
           endTime: new Date().toISOString(),
         }),
       });
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(200);
-      expect(data.data.status).toBe('COMPLETED');
+      expect(_data.data.status).toBe('COMPLETED');
     });
 
     it('should reject dispatch on non-SCHEDULED trip', async () => {
       const res = await fetch(`http://localhost:3000/api/trips/${tripId}/dispatch`, {
         method: 'POST',
       });
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(409);
-      expect(data.success).toBe(false);
+      expect(_data.success).toBe(false);
     });
 
     it('should cancel trip', async () => {
@@ -108,15 +108,13 @@ describe('Trips API - State Machine', () => {
         `http://localhost:3000/api/trips/${tripData.data.id}/complete`,
         { method: 'POST' }
       );
-      const data = await completeRes.json();
-      expect(completeRes.status).toBe(409);
+      expect(res.status).toBe(409);
     });
 
     it('should not cancel a COMPLETED trip', async () => {
       const cancelRes = await fetch(`http://localhost:3000/api/trips/${tripId}/cancel`, {
         method: 'POST',
       });
-      const data = await cancelRes.json();
       expect(cancelRes.status).toBe(409);
     });
   });

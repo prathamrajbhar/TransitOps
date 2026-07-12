@@ -3,7 +3,7 @@
 import React, { use } from "react";
 import { useRouter } from "next/navigation";
 import { useMockData } from "@/context/MockDataContext";
-import { Truck, ArrowLeft, Fuel, Wrench, ShieldAlert } from "lucide-react";
+import { ArrowLeft, Fuel, Wrench, Truck } from "lucide-react";
 
 export default function VehicleDetailPage({ params }: { params: Promise<{ vehicleId: string }> }) {
   const router = useRouter();

@@ -1,4 +1,4 @@
-import { useMockData } from "@/context/MockDataContext";
+import { useMockData, Trip } from "@/context/MockDataContext";
 
 export const useAnalytics = () => {
   const { vehicles, trips, maintenanceLogs, fuelLogs } = useMockData();
@@ -14,7 +14,7 @@ export const useAnalytics = () => {
 
   // 3. Revenue Formula per completed trip:
   // Revenue = distance * (cargoWeight * 0.15 + 20)
-  const getTripRevenue = (t: any) => {
+  const getTripRevenue = (t: Trip) => {
     if (t.status !== "COMPLETED") return 0;
     const distance = Number(t.actualDistanceKm || t.plannedDistanceKm || 0);
     const weight = Number(t.cargoWeightKg || 0);

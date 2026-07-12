@@ -1,12 +1,12 @@
 import { NextRequest } from "next/server";
-import { isAppError } from "@/src/lib/errors";
-import { getCurrentUser } from "@/src/lib/auth";
-import { requirePermission } from "@/src/lib/rbac";
-import { validateBody } from "@/src/lib/validate";
-import { UpdateDriverSchema } from "@/src/lib/validations/driver.schema";
-import { DriverService } from "@/src/lib/services/driverService";
-import { success, error, unauthorized, serverError, notFound } from "@/src/lib/api-response";
-import { logger } from "@/src/lib/logger";
+import { isAppError } from "@/lib/errors";
+import { getCurrentUser } from "@/lib/auth";
+import { requirePermission } from "@/lib/rbac";
+import { validateBody } from "@/lib/validate";
+import { UpdateDriverSchema } from "@/lib/validations/driver.schema";
+import { DriverService } from "@/lib/services/driverService";
+import { success, error, unauthorized, serverError, notFound } from "@/lib/api-response";
+import { logger } from "@/lib/logger";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

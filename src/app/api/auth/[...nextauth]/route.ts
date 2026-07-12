@@ -8,13 +8,13 @@
  * POST /api/auth/signup  → create user + signIn
  */
 import { NextRequest } from "next/server";
-import { validateBody } from "@/src/lib/validate";
-import { LoginSchema, SignupSchema } from "@/src/lib/validations/user.schema";
-import { signIn, signOut, hashPassword } from "@/src/lib/auth";
-import { prisma } from "@/src/lib/prisma";
-import { ConflictError, isAppError } from "@/src/lib/errors";
-import { success, error, serverError } from "@/src/lib/api-response";
-import { logger } from "@/src/lib/logger";
+import { validateBody } from "@/lib/validate";
+import { LoginSchema, SignupSchema } from "@/lib/validations/user.schema";
+import { signIn, signOut, hashPassword } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { ConflictError, isAppError } from "@/lib/errors";
+import { success, error, serverError } from "@/lib/api-response";
+import { logger } from "@/lib/logger";
 
 // Next.js 16 — route params are async
 type RouteContext = { params: Promise<{ nextauth: string[] }> };

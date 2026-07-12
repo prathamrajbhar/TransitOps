@@ -18,10 +18,10 @@ describe('Drivers API', () => {
           status: 'ACTIVE',
         }),
       });
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(201);
-      expect(data.success).toBe(true);
-      driverId = data.data.id;
+      expect(_data.success).toBe(true);
+      driverId = _data.data.id;
     });
 
     it('should reject duplicate license number', async () => {
@@ -35,7 +35,7 @@ describe('Drivers API', () => {
           status: 'ACTIVE',
         }),
       });
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(409);
     });
 
@@ -45,7 +45,7 @@ describe('Drivers API', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: 'John' }),
       });
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(400);
     });
   });
@@ -53,20 +53,20 @@ describe('Drivers API', () => {
   describe('GET /api/drivers', () => {
     it('should list drivers with pagination', async () => {
       const res = await fetch('http://localhost:3000/api/drivers?page=1&limit=10');
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(200);
-      expect(data.success).toBe(true);
-      expect(Array.isArray(data.data)).toBe(true);
-      expect(data.meta.page).toBe(1);
+      expect(_data.success).toBe(true);
+      expect(Array.isArray(_data.data)).toBe(true);
+      expect(_data.meta.page).toBe(1);
     });
   });
 
   describe('GET /api/drivers/[id]', () => {
     it('should get driver by id', async () => {
       const res = await fetch(`http://localhost:3000/api/drivers/${driverId}`);
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(200);
-      expect(data.data.id).toBe(driverId);
+      expect(_data.data.id).toBe(driverId);
     });
   });
 
@@ -77,16 +77,16 @@ describe('Drivers API', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'ON_LEAVE' }),
       });
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(200);
-      expect(data.data.status).toBe('ON_LEAVE');
+      expect(_data.data.status).toBe('ON_LEAVE');
     });
   });
 
   describe('GET /api/drivers/[id]/stats', () => {
     it('should return driver stats', async () => {
       const res = await fetch(`http://localhost:3000/api/drivers/${driverId}/stats`);
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(200);
       expect(data.data).toHaveProperty('tripsCount');
       expect(data.data).toHaveProperty('completedTrips');
@@ -99,7 +99,7 @@ describe('Drivers API', () => {
       const res = await fetch(`http://localhost:3000/api/drivers/${driverId}`, {
         method: 'DELETE',
       });
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(200);
     });
   });

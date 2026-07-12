@@ -2,7 +2,7 @@
  * __tests__/api/auth.test.ts
  * Comprehensive authentication endpoint tests
  */
-import { prisma } from '@/src/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 describe('Auth Endpoints', () => {
   beforeAll(async () => {

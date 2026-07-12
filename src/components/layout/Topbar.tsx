@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useMockData, RoleName } from "@/context/MockDataContext";
-import { Search, UserCheck, Shield, ChevronDown } from "lucide-react";
+import { Shield, ChevronDown, Search } from "lucide-react";
 import RoleBadge from "./RoleBadge";
 
 export const Topbar: React.FC = () => {

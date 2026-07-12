@@ -20,9 +20,9 @@ describe('Fuel Logs API', () => {
           station: 'Shell Station, Delhi',
         }),
       });
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(201);
-      fuelLogId = data.data.id;
+      fuelLogId = _data.data.id;
     });
 
     it('should validate positive amounts', async () => {
@@ -35,7 +35,7 @@ describe('Fuel Logs API', () => {
           totalCost: -1000,
         }),
       });
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(400);
     });
   });
@@ -43,18 +43,18 @@ describe('Fuel Logs API', () => {
   describe('GET /api/fuel-logs', () => {
     it('should list fuel logs with pagination', async () => {
       const res = await fetch('http://localhost:3000/api/fuel-logs?page=1&limit=20');
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(200);
-      expect(Array.isArray(data.data)).toBe(true);
+      expect(Array.isArray(_data.data)).toBe(true);
     });
   });
 
   describe('GET /api/fuel-logs/[id]', () => {
     it('should get fuel log by id', async () => {
       const res = await fetch(`http://localhost:3000/api/fuel-logs/${fuelLogId}`);
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(200);
-      expect(data.data.id).toBe(fuelLogId);
+      expect(_data.data.id).toBe(fuelLogId);
     });
   });
 
@@ -65,7 +65,7 @@ describe('Fuel Logs API', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ liters: 55 }),
       });
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(200);
     });
   });

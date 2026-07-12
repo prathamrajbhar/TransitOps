@@ -1,12 +1,12 @@
 import { NextRequest } from "next/server";
-import { isAppError } from "@/src/lib/errors";
-import { getCurrentUser } from "@/src/lib/auth";
-import { requirePermission } from "@/src/lib/rbac";
-import { validateBody } from "@/src/lib/validate";
-import { CancelTripSchema } from "@/src/lib/validations/trip.schema";
-import { TripService } from "@/src/lib/services/tripService";
-import { success, error, unauthorized, serverError, notFound, conflict } from "@/src/lib/api-response";
-import { logger } from "@/src/lib/logger";
+import { isAppError } from "@/lib/errors";
+import { getCurrentUser } from "@/lib/auth";
+import { requirePermission } from "@/lib/rbac";
+import { validateBody } from "@/lib/validate";
+import { CancelTripSchema } from "@/lib/validations/trip.schema";
+import { TripService } from "@/lib/services/tripService";
+import { success, error, unauthorized, serverError, notFound, conflict } from "@/lib/api-response";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (!user) return unauthorized();
     requirePermission(user.role, "trips:cancel");
     const body = await validateBody(req, CancelTripSchema);
-    const trip = await TripService.cancel(user, id, body);
+    const trip = await TripService.cancel(user, id);
     logger.request("POST", `/api/trips/${id}/cancel`, { userId: user.userId, durationMs: Date.now() - start, status: 200 });
     return success(trip);
   } catch (err) {

@@ -3,11 +3,10 @@
  * Health-check endpoint — GET /api/health
  * Returns app status and DB connectivity.
  */
-import { NextRequest } from "next/server";
-import { prisma } from "@/src/lib/prisma";
-import { logger } from "@/src/lib/logger";
+import { prisma } from "@/lib/prisma";
+import { logger } from "@/lib/logger";
 
-export async function GET(_req: NextRequest) {
+export async function GET() {
   const start = Date.now();
 
   let dbStatus: "ok" | "error" = "ok";

@@ -17,9 +17,9 @@ describe('Expenses API', () => {
           date: new Date().toISOString(),
         }),
       });
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(201);
-      expenseId = data.data.id;
+      expenseId = _data.data.id;
     });
 
     it('should validate positive amount', async () => {
@@ -31,7 +31,7 @@ describe('Expenses API', () => {
           description: 'Invalid expense',
         }),
       });
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(400);
     });
   });
@@ -39,16 +39,16 @@ describe('Expenses API', () => {
   describe('GET /api/expenses', () => {
     it('should list expenses with pagination', async () => {
       const res = await fetch('http://localhost:3000/api/expenses?page=1&limit=10');
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(200);
-      expect(Array.isArray(data.data)).toBe(true);
+      expect(Array.isArray(_data.data)).toBe(true);
     });
 
     it('should filter by category', async () => {
       const res = await fetch('http://localhost:3000/api/expenses?category=FUEL');
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(200);
-      data.data.forEach((expense: any) => {
+      data.data.forEach((expense: Record<string, unknown>) => {
         expect(expense.category).toBe('FUEL');
       });
     });
@@ -57,9 +57,9 @@ describe('Expenses API', () => {
   describe('GET /api/expenses/[id]', () => {
     it('should get expense by id', async () => {
       const res = await fetch(`http://localhost:3000/api/expenses/${expenseId}`);
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(200);
-      expect(data.data.id).toBe(expenseId);
+      expect(_data.data.id).toBe(expenseId);
     });
   });
 
@@ -70,7 +70,7 @@ describe('Expenses API', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: 5500 }),
       });
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(200);
     });
   });

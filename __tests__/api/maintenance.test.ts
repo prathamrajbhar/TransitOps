@@ -24,27 +24,27 @@ describe('Maintenance API', () => {
           status: 'SCHEDULED',
         }),
       });
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(201);
-      maintenanceId = data.data.id;
+      maintenanceId = _data.data.id;
     });
   });
 
   describe('GET /api/maintenance', () => {
     it('should list maintenance records', async () => {
       const res = await fetch('http://localhost:3000/api/maintenance?page=1&limit=10');
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(200);
-      expect(Array.isArray(data.data)).toBe(true);
+      expect(Array.isArray(_data.data)).toBe(true);
     });
   });
 
   describe('GET /api/maintenance/[id]', () => {
     it('should get maintenance by id', async () => {
       const res = await fetch(`http://localhost:3000/api/maintenance/${maintenanceId}`);
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(200);
-      expect(data.data.id).toBe(maintenanceId);
+      expect(_data.data.id).toBe(maintenanceId);
     });
   });
 
@@ -55,9 +55,9 @@ describe('Maintenance API', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'IN_PROGRESS' }),
       });
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(200);
-      expect(data.data.status).toBe('IN_PROGRESS');
+      expect(_data.data.status).toBe('IN_PROGRESS');
     });
   });
 
@@ -71,16 +71,15 @@ describe('Maintenance API', () => {
           completedAt: new Date().toISOString(),
         }),
       });
-      const data = await res.json();
+      const _data = await res.json();
       expect(res.status).toBe(200);
-      expect(data.data.status).toBe('COMPLETED');
+      expect(_data.data.status).toBe('COMPLETED');
     });
 
     it('should reject close on non-in-progress maintenance', async () => {
       const res = await fetch(`http://localhost:3000/api/maintenance/${maintenanceId}/close`, {
         method: 'POST',
       });
-      const data = await res.json();
       expect(res.status).toBe(409);
     });
   });

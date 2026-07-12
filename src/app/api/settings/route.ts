@@ -1,12 +1,12 @@
 import { NextRequest } from "next/server";
-import { isAppError } from "@/src/lib/errors";
-import { getCurrentUser } from "@/src/lib/auth";
-import { requirePermission, orgScope } from "@/src/lib/rbac";
-import { prisma } from "@/src/lib/prisma";
-import { success, error, unauthorized, serverError } from "@/src/lib/api-response";
-import { logger } from "@/src/lib/logger";
+import { isAppError } from "@/lib/errors";
+import { getCurrentUser } from "@/lib/auth";
+import { requirePermission, orgScope } from "@/lib/rbac";
+import { prisma } from "@/lib/prisma";
+import { success, error, unauthorized, serverError } from "@/lib/api-response";
+import { logger } from "@/lib/logger";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   const start = Date.now();
   try {
     const user = await getCurrentUser();
@@ -14,9 +14,9 @@ export async function GET(req: NextRequest) {
     requirePermission(user.role, "settings:read");
     const settings = await prisma.settings.findMany({ where: orgScope(user) });
     const merged = settings.reduce((acc, s) => {
-      acc[s.key] = s.value;
+      acc[s.key] = s.value as unknown as string;
       return acc;
-    }, {} as Record<string, any>);
+    }, {} as Record<string, string>);
     logger.request("GET", "/api/settings", { userId: user.userId, durationMs: Date.now() - start, status: 200 });
     return success(merged);
   } catch (err) {
@@ -36,12 +36,12 @@ export async function PUT(req: NextRequest) {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
     requirePermission(user.role, "settings:update");
-    const body = await req.json() as Record<string, any>;
+    const body = await req.json() as Record<string, string>;
     for (const [key, value] of Object.entries(body)) {
       await prisma.settings.upsert({
         where: { organizationId_key: { organizationId: user.organizationId, key } },
-        update: { value: value as any },
-        create: { organizationId: user.organizationId, key, value: value as any },
+        update: { value },
+        create: { organizationId: user.organizationId, key, value },
       });
     }
     logger.request("PUT", "/api/settings", { userId: user.userId, durationMs: Date.now() - start, status: 200 });

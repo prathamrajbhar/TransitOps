@@ -133,7 +133,7 @@ async function main() {
     },
   });
 
-  const driver3 = await prisma.driver.create({
+  await prisma.driver.create({
     data: {
       name: "Meena Shah",
       email: "meena.shah@transitops.com",

@@ -4,14 +4,11 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useDrivers } from "@/hooks/useDrivers";
 import { useMockData } from "@/context/MockDataContext";
-import { Users, Plus, X, Search, AlertCircle, ShieldAlert, Award } from "lucide-react";
+import { Plus, X, AlertCircle, ShieldAlert, Award, Search } from "lucide-react";
 
 export default function DriversPage() {
   const { drivers, addDriver, updateDriverStatus } = useDrivers();
   const { currentUser } = useMockData();
-
-  // Selected driver for status toggling
-  const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);
 
   // Search & Filter State
   const [searchTerm, setSearchTerm] = useState("");
@@ -25,7 +22,7 @@ export default function DriversPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [licenseNo, setLicenseNo] = useState("");
-  const [licenseCategory, setLicenseCategory] = useState<any>("LMV");
+  const [licenseCategory, setLicenseCategory] = useState<"LMV" | "HMV" | "OTHER">("LMV");
   const [licenseExpiry, setLicenseExpiry] = useState("");
   const [contactNumber, setContactNumber] = useState("");
 
@@ -57,11 +54,6 @@ export default function DriversPage() {
 
   const isLicenseExpired = (expiryStr: string) => {
     return new Date(expiryStr) < new Date();
-  };
-
-  const handleStatusToggle = (status: any) => {
-    if (!selectedDriverId) return;
-    updateDriverStatus(selectedDriverId, status);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -97,8 +89,6 @@ export default function DriversPage() {
       setError(res.error || "An error occurred.");
     }
   };
-
-  const selectedDriver = drivers.find(d => d.id === selectedDriverId);
 
   return (
     <div className="space-y-6">
@@ -224,7 +214,7 @@ export default function DriversPage() {
                         <select
                           value={driver.status}
                           disabled={driver.status === "ON_TRIP"}
-                          onChange={(e) => updateDriverStatus(driver.id, e.target.value as any)}
+                          onChange={(e) => updateDriverStatus(driver.id, e.target.value as 'AVAILABLE' | 'ON_TRIP' | 'OFF_DUTY' | 'SUSPENDED')}
                           className="px-2.5 py-1.5 text-[10px] rounded-lg border border-slate-200 bg-slate-50 text-slate-750 font-extrabold focus:bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed outline-none"
                         >
                           <option value="AVAILABLE">Available</option>
@@ -312,7 +302,7 @@ export default function DriversPage() {
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">License Category</label>
                   <select
                     value={licenseCategory}
-                    onChange={(e) => setLicenseCategory(e.target.value)}
+                    onChange={(e) => setLicenseCategory(e.target.value as "LMV" | "HMV" | "OTHER")}
                     className="w-full px-3 py-2 text-xs rounded-lg glass-input border-slate-200/70 appearance-none cursor-pointer"
                   >
                     <option value="LMV">Light Motor Vehicle (LMV)</option>

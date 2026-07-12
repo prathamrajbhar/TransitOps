@@ -1,19 +1,20 @@
-import { prisma } from "@/src/lib/prisma";
-import { orgScope } from "@/src/lib/rbac";
-import type { AuthUser } from "@/src/types/rbac";
-import { NotFoundError } from "@/src/lib/errors";
+import { prisma } from "@/lib/prisma";
+import { orgScope } from "@/lib/rbac";
+import type { AuthUser } from "@/types/rbac";
+import { NotFoundError } from "@/lib/errors";
+import { Prisma } from "@/generated/prisma/client";
 
 export class FuelExpenseService {
-  static async createFuelLog(user: AuthUser, input: any) {
+  static async createFuelLog(user: AuthUser, input: Record<string, unknown>) {
     return prisma.fuelLog.create({
       data: {
         ...input,
         organizationId: user.organizationId,
-      },
+      } as unknown as Prisma.FuelLogCreateInput,
     });
   }
 
-  static async listFuelLogs(user: AuthUser, page: number, limit: number, filters?: any) {
+  static async listFuelLogs(user: AuthUser, page: number, limit: number, filters?: Record<string, unknown>) {
     const skip = (page - 1) * limit;
     const where = { ...orgScope(user), ...filters };
 
@@ -43,7 +44,7 @@ export class FuelExpenseService {
     return log;
   }
 
-  static async updateFuelLog(user: AuthUser, id: string, input: any) {
+  static async updateFuelLog(user: AuthUser, id: string, input: Record<string, unknown>) {
     await this.getFuelLogById(user, id);
     return prisma.fuelLog.update({
       where: { id },

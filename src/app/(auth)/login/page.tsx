@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useMockData, RoleName } from "@/context/MockDataContext";
-import { Shield, Lock, Mail, ChevronRight, AlertCircle, Eye, EyeOff, Truck, Route, Users, BarChart3, ArrowRight } from "lucide-react";
+import { Shield, Lock, Mail, AlertCircle, Eye, EyeOff, Truck, Route, BarChart3, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();

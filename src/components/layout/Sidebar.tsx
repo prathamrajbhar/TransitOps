@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useMockData, RoleName, RBAC_MATRIX } from "@/context/MockDataContext";
+import { useMockData, RBAC_MATRIX } from "@/context/MockDataContext";
 import {
   LayoutDashboard,
   Truck,
@@ -14,13 +14,12 @@ import {
   BarChart3,
   Settings as SettingsIcon,
   LogOut,
-  Shield,
 } from "lucide-react";
 
 interface NavItem {
   name: string;
   href: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<Record<string, unknown>>;
   module: "FLEET" | "DRIVERS" | "TRIPS" | "MAINTENANCE" | "FUEL_EXPENSES" | "ANALYTICS" | "SETTINGS" | null;
 }
 

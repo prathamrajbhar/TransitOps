@@ -1,8 +1,8 @@
-import { prisma } from "@/src/lib/prisma";
-import { orgScope } from "@/src/lib/rbac";
-import type { AuthUser } from "@/src/types/rbac";
-import type { CreateTripInput, UpdateTripInput, DispatchTripInput, CompleteTripInput, CancelTripInput } from "@/src/lib/validations/trip.schema";
-import { NotFoundError, ConflictError } from "@/src/lib/errors";
+import { prisma } from "@/lib/prisma";
+import { orgScope } from "@/lib/rbac";
+import type { AuthUser } from "@/types/rbac";
+import type { CreateTripInput, UpdateTripInput, DispatchTripInput, CompleteTripInput } from "@/lib/validations/trip.schema";
+import { NotFoundError, ConflictError } from "@/lib/errors";
 
 export class TripService {
   static async create(user: AuthUser, input: CreateTripInput) {
@@ -15,7 +15,7 @@ export class TripService {
     });
   }
 
-  static async list(user: AuthUser, page: number, limit: number, filters?: any) {
+  static async list(user: AuthUser, page: number, limit: number, filters?: Record<string, unknown>) {
     const skip = (page - 1) * limit;
     const where = { ...orgScope(user), ...filters };
 
@@ -88,7 +88,7 @@ export class TripService {
     });
   }
 
-  static async cancel(user: AuthUser, id: string, input: CancelTripInput) {
+  static async cancel(user: AuthUser, id: string) {
     const trip = await this.getById(user, id);
     if (trip.status === "COMPLETED" || trip.status === "CANCELLED") {
       throw new ConflictError(`Cannot cancel a ${trip.status} trip`);

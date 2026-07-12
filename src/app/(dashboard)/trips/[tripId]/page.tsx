@@ -3,7 +3,7 @@
 import React, { use } from "react";
 import { useRouter } from "next/navigation";
 import { useMockData } from "@/context/MockDataContext";
-import { Route, ArrowLeft, Truck, Users, Compass, HelpCircle } from "lucide-react";
+import { ArrowLeft, Truck, Users, Compass } from "lucide-react";
 
 export default function TripDetailPage({ params }: { params: Promise<{ tripId: string }> }) {
   const router = useRouter();
@@ -44,10 +44,6 @@ export default function TripDetailPage({ params }: { params: Promise<{ tripId: s
       default:
         return "bg-slate-100 text-slate-700 border-slate-200";
     }
-  };
-
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(val);
   };
 
   return (

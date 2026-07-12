@@ -2,12 +2,12 @@
  * GET /api/analytics
  */
 import { NextRequest } from "next/server";
-import { isAppError } from "@/src/lib/errors";
-import { getCurrentUser } from "@/src/lib/auth";
-import { requirePermission } from "@/src/lib/rbac";
-import { AnalyticsService } from "@/src/lib/services/analyticsService";
-import { success, error, unauthorized, serverError } from "@/src/lib/api-response";
-import { logger } from "@/src/lib/logger";
+import { isAppError } from "@/lib/errors";
+import { getCurrentUser } from "@/lib/auth";
+import { requirePermission } from "@/lib/rbac";
+import { AnalyticsService } from "@/lib/services/analyticsService";
+import { success, error, unauthorized, serverError } from "@/lib/api-response";
+import { logger } from "@/lib/logger";
 
 export async function GET(req: NextRequest) {
   const start = Date.now();

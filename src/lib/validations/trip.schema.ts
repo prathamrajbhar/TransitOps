@@ -4,8 +4,6 @@
  */
 import { z } from "zod";
 
-const TRIP_STATUSES = ["SCHEDULED", "IN_PROGRESS", "COMPLETED", "CANCELLED"] as const;
-
 // ─── Create ───────────────────────────────────────────────────────
 export const CreateTripSchema = z.object({
   vehicleId: z.string().cuid("Invalid vehicle ID"),

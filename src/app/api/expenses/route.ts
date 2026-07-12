@@ -1,13 +1,13 @@
 import { NextRequest } from "next/server";
-import { isAppError } from "@/src/lib/errors";
-import { getCurrentUser } from "@/src/lib/auth";
-import { requirePermission } from "@/src/lib/rbac";
-import { validateQuery, PaginationSchema, validateBody } from "@/src/lib/validate";
-import { CreateExpenseSchema } from "@/src/lib/validations/expense.schema";
-import { ExpenseService } from "@/src/lib/services/expenseService";
-import { paginationMeta } from "@/src/lib/prisma";
-import { paginated, created, error, unauthorized, serverError } from "@/src/lib/api-response";
-import { logger } from "@/src/lib/logger";
+import { isAppError } from "@/lib/errors";
+import { getCurrentUser } from "@/lib/auth";
+import { requirePermission } from "@/lib/rbac";
+import { validateQuery, PaginationSchema, validateBody } from "@/lib/validate";
+import { CreateExpenseSchema } from "@/lib/validations/expense.schema";
+import { ExpenseService } from "@/lib/services/expenseService";
+import { paginationMeta } from "@/lib/prisma";
+import { paginated, created, error, unauthorized, serverError } from "@/lib/api-response";
+import { logger } from "@/lib/logger";
 
 export async function GET(req: NextRequest) {
   const start = Date.now();

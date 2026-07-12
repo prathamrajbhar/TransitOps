@@ -1,8 +1,8 @@
-import { prisma } from "@/src/lib/prisma";
-import { orgScope } from "@/src/lib/rbac";
-import type { AuthUser } from "@/src/types/rbac";
-import type { CreateVehicleInput, UpdateVehicleInput } from "@/src/lib/validations/vehicle.schema";
-import { NotFoundError, ConflictError } from "@/src/lib/errors";
+import { prisma } from "@/lib/prisma";
+import { orgScope } from "@/lib/rbac";
+import type { AuthUser } from "@/types/rbac";
+import type { CreateVehicleInput, UpdateVehicleInput } from "@/lib/validations/vehicle.schema";
+import { NotFoundError, ConflictError } from "@/lib/errors";
 
 export class VehicleService {
   static async create(user: AuthUser, input: CreateVehicleInput) {
@@ -16,7 +16,7 @@ export class VehicleService {
     });
   }
 
-  static async list(user: AuthUser, page: number, limit: number, filters?: any) {
+  static async list(user: AuthUser, page: number, limit: number, filters?: Record<string, unknown>) {
     const skip = (page - 1) * limit;
     const where = { ...orgScope(user), ...filters };
 

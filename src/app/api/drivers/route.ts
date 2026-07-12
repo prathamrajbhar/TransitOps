@@ -1,13 +1,13 @@
 import { NextRequest } from "next/server";
-import { isAppError } from "@/src/lib/errors";
-import { getCurrentUser } from "@/src/lib/auth";
-import { requirePermission } from "@/src/lib/rbac";
-import { validateQuery, PaginationSchema, validateBody } from "@/src/lib/validate";
-import { CreateDriverSchema } from "@/src/lib/validations/driver.schema";
-import { DriverService } from "@/src/lib/services/driverService";
-import { paginationMeta, paginate } from "@/src/lib/prisma";
-import { paginated, created, error, unauthorized, serverError } from "@/src/lib/api-response";
-import { logger } from "@/src/lib/logger";
+import { isAppError } from "@/lib/errors";
+import { getCurrentUser } from "@/lib/auth";
+import { requirePermission } from "@/lib/rbac";
+import { validateQuery, PaginationSchema, validateBody } from "@/lib/validate";
+import { CreateDriverSchema } from "@/lib/validations/driver.schema";
+import { DriverService } from "@/lib/services/driverService";
+import { paginationMeta } from "@/lib/prisma";
+import { paginated, created, error, unauthorized, serverError } from "@/lib/api-response";
+import { logger } from "@/lib/logger";
 
 export async function GET(req: NextRequest) {
   const start = Date.now();

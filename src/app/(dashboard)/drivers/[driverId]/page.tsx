@@ -3,7 +3,7 @@
 import React, { use } from "react";
 import { useRouter } from "next/navigation";
 import { useMockData } from "@/context/MockDataContext";
-import { Users, ArrowLeft, ShieldCheck, Phone, FileBadge, Award } from "lucide-react";
+import { ArrowLeft, Award } from "lucide-react";
 
 export default function DriverDetailPage({ params }: { params: Promise<{ driverId: string }> }) {
   const router = useRouter();

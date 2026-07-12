@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useLayoutEffect, useEffect, useState, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useMockData, RBAC_MATRIX, ModuleName } from "@/context/MockDataContext";
 import Sidebar from "@/components/layout/Sidebar";
@@ -14,7 +14,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [mounted, setMounted] = useState(false);
   const [deniedNotice, setDeniedNotice] = useState<string | null>(null);
 
-  const pathToModule: Record<string, ModuleName> = {
+  const pathToModule: Record<string, ModuleName> = useMemo(() => ({
     "/fleet": "FLEET",
     "/drivers": "DRIVERS",
     "/trips": "TRIPS",
@@ -22,9 +22,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     "/fuel-expenses": "FUEL_EXPENSES",
     "/analytics": "ANALYTICS",
     "/settings": "SETTINGS",
-  };
+  }), []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -39,12 +40,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (!mounted || !currentUser) return;
 
     const matchedPrefix = Object.keys(pathToModule).find(prefix => pathname.startsWith(prefix));
-    
+
     if (matchedPrefix) {
       const moduleName = pathToModule[matchedPrefix];
       const access = RBAC_MATRIX[currentUser.role]?.[moduleName];
-      
+
       if (!access || access === "NONE") {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setDeniedNotice(`Access Denied: Your role (${currentUser.role.replace("_", " ")}) does not have permission to view '${matchedPrefix}' modules.`);
         router.push("/dashboard");
         // Clear notice after 5 seconds
@@ -52,7 +54,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         return () => clearTimeout(timer);
       }
     }
-  }, [pathname, currentUser, mounted, router]);
+  }, [pathname, currentUser, mounted, router, pathToModule]);
 
   if (!mounted || !currentUser) {
     return (

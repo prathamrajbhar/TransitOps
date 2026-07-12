@@ -5,12 +5,12 @@ import Link from "next/link";
 import { useTrips } from "@/hooks/useTrips";
 import { useVehicles } from "@/hooks/useVehicles";
 import { useDrivers } from "@/hooks/useDrivers";
-import { useMockData } from "@/context/MockDataContext";
+import { useMockData, Trip } from "@/context/MockDataContext";
 import {
   Route, Plus, X, Search, AlertTriangle, Check,
   Truck, Users, MapPin, Package, Navigation,
   FileText, Send, Ban, CheckCircle, Clock,
-  ChevronRight, Eye, Weight, Fuel, ArrowRight
+  Eye, Weight, ArrowRight
 } from "lucide-react";
 
 export default function TripsPage() {
@@ -34,7 +34,7 @@ export default function TripsPage() {
   const [statusFilter, setStatusFilter] = useState("ALL");
 
   // Complete Form Modal State
-  const [activeTripToComplete, setActiveTripToComplete] = useState<any | null>(null);
+  const [activeTripToComplete, setActiveTripToComplete] = useState<Trip | null>(null);
   const [finalOdometer, setFinalOdometer] = useState("");
   const [fuelConsumed, setFuelConsumed] = useState("");
   const [modalError, setModalError] = useState<string | null>(null);
@@ -194,6 +194,7 @@ export default function TripsPage() {
 
   const handleCompleteSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!activeTripToComplete) return;
     setModalError(null);
     if (!finalOdometer || !fuelConsumed) {
       setModalError("Please fill out both fields.");

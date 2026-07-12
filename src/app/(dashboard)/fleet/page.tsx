@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useVehicles } from "@/hooks/useVehicles";
 import { useMockData } from "@/context/MockDataContext";
-import { Truck, Search, Plus, X, ShieldAlert, AlertCircle } from "lucide-react";
+import { Plus, X, ShieldAlert, AlertCircle, Search } from "lucide-react";
 
 export default function FleetPage() {
   const { vehicles, addVehicle, retireVehicle } = useVehicles();
@@ -22,7 +22,7 @@ export default function FleetPage() {
   // Form State
   const [regNo, setRegNo] = useState("");
   const [nameModel, setNameModel] = useState("");
-  const [type, setType] = useState<any>("VAN");
+  const [type, setType] = useState<"VAN" | "TRUCK" | "MINI" | "BUS" | "OTHER">("VAN");
   const [capacity, setCapacity] = useState("");
   const [odometer, setOdometer] = useState("");
   const [acqCost, setAcqCost] = useState("");
@@ -303,7 +303,7 @@ export default function FleetPage() {
                   <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Vehicle Type</label>
                   <select
                     value={type}
-                    onChange={(e) => setType(e.target.value)}
+                    onChange={(e) => setType(e.target.value as "BUS" | "VAN" | "TRUCK" | "OTHER" | "MINI")}
                     className="w-full px-3 py-2 text-xs rounded-lg glass-input border-slate-200/70 appearance-none cursor-pointer"
                   >
                     <option value="VAN">Van</option>

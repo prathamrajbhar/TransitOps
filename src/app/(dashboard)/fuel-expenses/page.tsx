@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useFuelExpenses } from "@/hooks/useFuelExpenses";
 import { useMockData } from "@/context/MockDataContext";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import { Fuel, Plus, X, AlertCircle, Coins, Receipt } from "lucide-react";
+import { Fuel, Plus, X, AlertCircle, Coins } from "lucide-react";
 
 export default function FuelExpensesPage() {
   const { fuelLogs, expenses, addFuelLog, addExpense } = useFuelExpenses();

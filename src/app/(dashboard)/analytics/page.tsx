@@ -3,28 +3,23 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import { useMockData } from "@/context/MockDataContext";
-import { 
-  BarChart3, 
-  Download, 
-  Gauge, 
-  TrendingUp, 
-  Fuel, 
-  Coins, 
+import { useMockData, Trip } from "@/context/MockDataContext";
+import {
+  Download,
+  Gauge,
+  TrendingUp,
+  Fuel,
+  Coins,
   ShieldAlert,
   HelpCircle
 } from "lucide-react";
 
 export default function AnalyticsPage() {
-  const { 
-    fleetUtilization, 
-    costliestVehicles, 
-    getVehicleROI 
-  } = useAnalytics();
-  
+  const { getVehicleROI } = useAnalytics();
   const { vehicles, trips, maintenanceLogs, fuelLogs, formatCurrency } = useMockData();
   const [timeFilter, setTimeFilter] = useState<"WEEKLY" | "MONTHLY" | "YEARLY">("MONTHLY");
   const [activeTooltip, setActiveTooltip] = useState<number | null>(null);
+  const [timestamp] = useState(() => Date.now());
 
   // 1. Dynamic filtering based on selected timeframe
   const now = new Date();
@@ -67,7 +62,7 @@ export default function AnalyticsPage() {
   const calculatedMaintCost = filteredMaint.reduce((acc, m) => acc + Number(m.cost), 0);
   const calculatedOperationalCost = calculatedFuelCost + calculatedMaintCost;
 
-  const getTripRevenue = (t: any) => {
+  const getTripRevenue = (t: Trip) => {
     if (t.status !== "COMPLETED") return 0;
     const distance = Number(t.actualDistanceKm || t.plannedDistanceKm || 0);
     const weight = Number(t.cargoWeightKg || 0);
@@ -79,6 +74,12 @@ export default function AnalyticsPage() {
   const calculatedFleetROI = calculatedAcquisition > 0 
     ? Math.round(((calculatedRevenue - calculatedOperationalCost) / calculatedAcquisition) * 100 * 10) / 10 
     : 14.2;
+
+  const nonRetiredVehicles = vehicles.filter((v) => v.status !== "RETIRED");
+  const onTripCount = nonRetiredVehicles.filter((v) => v.status === "ON_TRIP").length;
+  const fleetUtilization = nonRetiredVehicles.length > 0 
+    ? Math.round((onTripCount / nonRetiredVehicles.length) * 100) 
+    : 0;
 
   // 3. Dynamic Costliest Vehicles ranking list
   const calculatedCostliestVehicles = vehicles.map((v) => {
@@ -179,7 +180,7 @@ export default function AnalyticsPage() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `transitops_fleet_analytics_${Date.now()}.csv`);
+    link.setAttribute("download", `transitops_fleet_analytics_${timestamp}.csv`);
     document.body.appendChild(link);
     
     link.click();

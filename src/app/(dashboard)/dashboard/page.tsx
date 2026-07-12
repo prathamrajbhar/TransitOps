@@ -2,17 +2,16 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useMockData } from "@/context/MockDataContext";
+import { useMockData, Trip } from "@/context/MockDataContext";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import { 
-  Activity, 
-  CheckCircle, 
-  AlertTriangle, 
-  Map, 
-  TrendingUp, 
-  Clock, 
+import {
+  Activity,
+  CheckCircle,
+  AlertTriangle,
+  Map,
+  TrendingUp,
+  Clock,
   Users,
-  Search,
   Filter,
   Coins,
   Award,
@@ -21,19 +20,16 @@ import {
 } from "lucide-react";
 
 export default function DashboardPage() {
-  const { 
-    vehicles, 
-    drivers, 
-    trips, 
-    maintenanceLogs, 
-    fuelLogs, 
-    expenses, 
-    settings, 
+  const {
+    vehicles,
+    drivers,
+    trips,
+    maintenanceLogs,
+    fuelLogs,
     currentUser,
     formatCurrency,
-    formatDistance
   } = useMockData();
-  const { fleetUtilization, fuelEfficiency, fleetROI } = useAnalytics();
+  const { fuelEfficiency, fleetROI } = useAnalytics();
 
   // Safety Officer calculations
   const suspendedDriversCount = drivers.filter((d) => d.status === "SUSPENDED").length;
@@ -48,7 +44,7 @@ export default function DashboardPage() {
   const totalMaintCost = maintenanceLogs.reduce((acc, m) => acc + Number(m.cost), 0);
   const totalOpCost = totalFuelCost + totalMaintCost;
   
-  const getTripRevenue = (t: any) => {
+  const getTripRevenue = (t: Trip) => {
     if (t.status !== "COMPLETED") return 0;
     const distance = Number(t.actualDistanceKm || t.plannedDistanceKm || 0);
     const weight = Number(t.cargoWeightKg || 0);
