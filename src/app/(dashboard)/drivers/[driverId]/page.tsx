@@ -2,13 +2,17 @@
 
 import React, { use } from "react";
 import { useRouter } from "next/navigation";
-import { useMockData } from "@/context/MockDataContext";
+import { useDrivers } from "@/hooks/useDrivers";
+import { useTrips } from "@/hooks/useTrips";
+import { useVehicles } from "@/hooks/useVehicles";
 import { ArrowLeft, Award } from "lucide-react";
 
 export default function DriverDetailPage({ params }: { params: Promise<{ driverId: string }> }) {
   const router = useRouter();
   const { driverId } = use(params);
-  const { drivers, trips, vehicles } = useMockData();
+  const { drivers } = useDrivers();
+  const { trips } = useTrips();
+  const { vehicles } = useVehicles();
 
   const driver = drivers.find((d) => d.id === driverId);
 

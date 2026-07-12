@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
+import { useSession } from "@/providers/SessionProvider";
 import { useMockData, RoleName, RBAC_MATRIX } from "@/context/MockDataContext";
 import { Settings as SettingsIcon, ShieldCheck, CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function SettingsPage() {
-  const { settings, updateSettings, currentUser } = useMockData();
+  const { user } = useSession();
+  const { settings, updateSettings } = useMockData();
 
   // Form State
   const [depotName, setDepotName] = useState(settings.depotName);
@@ -13,7 +15,7 @@ export default function SettingsPage() {
   const [distanceUnit, setDistanceUnit] = useState(settings.distanceUnit);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  const canModify = currentUser?.role === "FLEET_MANAGER";
+  const canModify = user?.role === "FLEET_MANAGER";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -157,7 +159,7 @@ export default function SettingsPage() {
               <tbody className="divide-y divide-slate-100/50">
                 {(Object.keys(RBAC_MATRIX) as RoleName[]).map((roleKey) => {
                   const rolePermissions = RBAC_MATRIX[roleKey];
-                  const isCurrentRole = currentUser?.role === roleKey;
+                  const isCurrentRole = user?.role === roleKey;
                   return (
                     <tr 
                       key={roleKey} 

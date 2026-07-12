@@ -2,14 +2,19 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useSession } from "@/providers/SessionProvider";
+import { useVehicles } from "@/hooks/useVehicles";
+import { useTrips } from "@/hooks/useTrips";
 import { useFuelExpenses } from "@/hooks/useFuelExpenses";
-import { useMockData } from "@/context/MockDataContext";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { formatCurrency } from "@/lib/utils/format";
 import { Fuel, Plus, X, AlertCircle, Coins } from "lucide-react";
 
 export default function FuelExpensesPage() {
+  const { user } = useSession();
+  const { vehicles } = useVehicles();
+  const { trips } = useTrips();
   const { fuelLogs, expenses, addFuelLog, addExpense } = useFuelExpenses();
-  const { vehicles, trips, currentUser, formatCurrency } = useMockData();
   const { totalOperationalCost } = useAnalytics();
 
   // Dialog Modals State
@@ -29,7 +34,7 @@ export default function FuelExpensesPage() {
   const [tollCost, setTollCost] = useState("");
   const [otherCost, setOtherCost] = useState("");
 
-  const canModify = currentUser?.role === "FINANCIAL_ANALYST";
+  const canModify = user?.role === "FINANCIAL_ANALYST";
 
   const handleFuelSubmit = (e: React.FormEvent) => {
     e.preventDefault();

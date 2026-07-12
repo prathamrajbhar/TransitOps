@@ -7,10 +7,10 @@
  * POST /api/auth/logout  → signOut
  * POST /api/auth/signup  → create user + signIn
  */
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { validateBody } from "@/lib/validate";
 import { LoginSchema, SignupSchema } from "@/lib/validations/user.schema";
-import { signIn, signOut, hashPassword } from "@/lib/auth";
+import { signIn, signOut, hashPassword, getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ConflictError, isAppError } from "@/lib/errors";
 import { success, error, serverError } from "@/lib/api-response";
@@ -18,6 +18,34 @@ import { logger } from "@/lib/logger";
 
 // Next.js 16 — route params are async
 type RouteContext = { params: Promise<{ nextauth: string[] }> };
+
+// ─── GET /api/auth/[...nextauth] ──────────────────────────────────────────────
+export async function GET(req: NextRequest, ctx: RouteContext) {
+  const { nextauth } = await ctx.params;
+  const action = nextauth?.[0];
+  const start = Date.now();
+
+  try {
+    switch (action) {
+      case "session": {
+        const user = await getCurrentUser();
+        logger.request("GET", `/api/auth/session`, { durationMs: Date.now() - start, status: 200 });
+        if (!user) {
+          return NextResponse.json({ success: true, data: null });
+        }
+        return NextResponse.json({ success: true, data: user });
+      }
+      default:
+        return error(`Unknown auth action: ${action ?? "none"}`, 400, "BAD_REQUEST");
+    }
+  } catch (err) {
+    if (isAppError(err)) {
+      return error(err.message, err.statusCode as never, err.code, err.details);
+    }
+    logger.exception(`Unhandled error on GET /api/auth/${action}`, err);
+    return serverError();
+  }
+}
 
 // ─── POST /api/auth/[...nextauth] ─────────────────────────────────────────────
 export async function POST(req: NextRequest, ctx: RouteContext) {
@@ -52,6 +80,18 @@ export async function POST(req: NextRequest, ctx: RouteContext) {
           throw new ConflictError("An account with this email already exists");
         }
 
+        // Auto-create organization if not provided
+        let organizationId = body.organizationId;
+        if (!organizationId) {
+          const org = await prisma.organization.create({
+            data: {
+              name: `${body.name}'s Organization`,
+              slug: `org-${Date.now()}`,
+            },
+          });
+          organizationId = org.id;
+        }
+
         // Create user
         const passwordHash = await hashPassword(body.password);
         const user = await prisma.user.create({
@@ -60,7 +100,7 @@ export async function POST(req: NextRequest, ctx: RouteContext) {
             email: body.email,
             passwordHash,
             role: body.role as never,
-            organizationId: body.organizationId,
+            organizationId,
           },
           select: { id: true, role: true, organizationId: true },
         });

@@ -35,6 +35,8 @@ export async function signIn(input: SignInInput): Promise<AuthUser> {
     where: { email: input.email.toLowerCase().trim() },
     select: {
       id: true,
+      name: true,
+      email: true,
       role: true,
       organizationId: true,
       passwordHash: true,
@@ -54,6 +56,8 @@ export async function signIn(input: SignInInput): Promise<AuthUser> {
 
   return {
     userId: user.id,
+    name: user.name,
+    email: user.email,
     role: user.role as Role,
     organizationId: user.organizationId,
   };
@@ -78,8 +82,16 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   const session = await getSession();
   if (!session) return null;
 
+  const user = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: { name: true, email: true },
+  });
+  if (!user) return null;
+
   return {
     userId: session.userId,
+    name: user.name,
+    email: user.email,
     role: session.role as Role,
     organizationId: session.organizationId,
   };

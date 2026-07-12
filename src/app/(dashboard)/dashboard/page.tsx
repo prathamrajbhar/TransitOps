@@ -2,8 +2,15 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useMockData, Trip } from "@/context/MockDataContext";
+import { useSession } from "@/providers/SessionProvider";
+import { useVehicles } from "@/hooks/useVehicles";
+import { useDrivers } from "@/hooks/useDrivers";
+import { useTrips } from "@/hooks/useTrips";
+import { useMaintenance } from "@/hooks/useMaintenance";
+import { useFuelExpenses } from "@/hooks/useFuelExpenses";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { formatCurrency } from "@/lib/utils/format";
+import type { Trip } from "@/context/MockDataContext";
 import {
   Activity,
   CheckCircle,
@@ -20,15 +27,12 @@ import {
 } from "lucide-react";
 
 export default function DashboardPage() {
-  const {
-    vehicles,
-    drivers,
-    trips,
-    maintenanceLogs,
-    fuelLogs,
-    currentUser,
-    formatCurrency,
-  } = useMockData();
+  const { user } = useSession();
+  const { vehicles } = useVehicles();
+  const { drivers } = useDrivers();
+  const { trips } = useTrips();
+  const { maintenanceLogs } = useMaintenance();
+  const { fuelLogs } = useFuelExpenses();
   const { fuelEfficiency, fleetROI } = useAnalytics();
 
   // Safety Officer calculations
@@ -123,8 +127,8 @@ export default function DashboardPage() {
 
 
   const renderKpis = () => {
-    if (!currentUser) return null;
-    const role = currentUser.role;
+    if (!user) return null;
+    const role = user.role;
 
     switch (role) {
       case "FLEET_MANAGER":

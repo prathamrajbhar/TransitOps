@@ -4,6 +4,8 @@
  */
 import { z } from "zod";
 
+const ROLES = ["FLEET_MANAGER", "DISPATCHER", "SAFETY_OFFICER", "FINANCIAL_ANALYST"] as const;
+
 /** Minimum password policy */
 const passwordSchema = z
   .string()
@@ -12,33 +14,31 @@ const passwordSchema = z
   .regex(/[0-9]/, "Password must contain at least one number")
   .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character");
 
-// ─── Login ────────────────────────────────────────────────────────
+// ─── Login ────────────────────────────────────────
 export const LoginSchema = z.object({
   email: z.string().email("Invalid email address").trim().toLowerCase(),
   password: z.string().min(1, "Password is required"),
 });
 export type LoginInput = z.infer<typeof LoginSchema>;
 
-// ─── Sign Up ──────────────────────────────────────────────────────
+// ─── Sign Up ──────────────────────────────────────
 export const SignupSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").trim(),
   email: z.string().email("Invalid email address").trim().toLowerCase(),
   password: passwordSchema,
-  organizationId: z.string().cuid("Invalid organization ID"),
-  role: z
-    .enum(["ADMIN", "MANAGER", "DISPATCHER", "DRIVER"])
-    .default("DRIVER"),
+  organizationId: z.string().optional(),
+  role: z.enum(ROLES).default("DISPATCHER"),
 });
 export type SignupInput = z.infer<typeof SignupSchema>;
 
-// ─── Profile Update ───────────────────────────────────────────────
+// ─── Profile Update ───────────────────────────────
 export const UpdateProfileSchema = z.object({
   name: z.string().min(2).trim().optional(),
   email: z.string().email().trim().toLowerCase().optional(),
 });
 export type UpdateProfileInput = z.infer<typeof UpdateProfileSchema>;
 
-// ─── Change Password ──────────────────────────────────────────────
+// ─── Change Password ──────────────────────────────
 export const ChangePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, "Current password is required"),

@@ -3,29 +3,31 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useMockData, RoleName } from "@/context/MockDataContext";
+import { useSession } from "@/providers/SessionProvider";
+import type { RoleName } from "@/context/MockDataContext";
 import { Shield, Lock, Mail, AlertCircle, User, CheckCircle, Truck, Route, BarChart3, ArrowRight, UserPlus } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register, currentUser } = useMockData();
-  
+  const { user, refresh } = useSession();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("admin"); // seed default password
+  const [password, setPassword] = useState("Password@123");
   const [role, setRole] = useState<RoleName>("FLEET_MANAGER");
-  
+
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   // If already logged in, redirect to dashboard
   useEffect(() => {
-    if (currentUser) {
+    if (user) {
       router.push("/dashboard");
     }
-  }, [currentUser, router]);
+  }, [user, router]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
@@ -39,53 +41,70 @@ export default function RegisterPage() {
       return;
     }
 
-    const res = register(name.trim(), email.trim(), role);
-    if (res.success) {
-      setSuccess(`Account registered successfully for ${role.replace("_", " ")}! Redirecting to login...`);
-      setTimeout(() => {
-        router.push("/login");
-      }, 2000);
-    } else {
-      setError(res.error || "Registration failed. Please try again.");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          password,
+          role,
+        }),
+      });
+      const body = await res.json();
+
+      if (!res.ok) {
+        throw new Error(body.error || "Registration failed.");
+      }
+
+      setSuccess(`Account created! Redirecting to dashboard...`);
+      await refresh();
+      setTimeout(() => router.push("/dashboard"), 1500);
+    } catch (err) {
+      setError((err as Error).message || "Registration failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const roleOptions: { value: RoleName; label: string; desc: string; icon: React.ReactNode; color: string; borderColor: string; bgColor: string }[] = [
+  const roleCards: { role: RoleName; label: string; desc: string; icon: React.ReactNode; color: string; borderColor: string; bgColor: string }[] = [
     {
-      value: "FLEET_MANAGER",
+      role: "FLEET_MANAGER",
       label: "Fleet Manager",
-      desc: "Manage vehicles, maintenance & fleet operations",
+      desc: "Fleet & Maintenance",
       icon: <Truck className="w-4 h-4" />,
       color: "text-amber-400",
-      borderColor: "border-amber-500/30",
-      bgColor: "bg-amber-500/10",
+      borderColor: "border-amber-500/30 hover:border-amber-400/60",
+      bgColor: "bg-amber-500/10 hover:bg-amber-500/20",
     },
     {
-      value: "DISPATCHER",
+      role: "DISPATCHER",
       label: "Dispatcher",
-      desc: "Plan trips, dispatch vehicles & track routes",
+      desc: "Trip Planning & Dashboard",
       icon: <Route className="w-4 h-4" />,
       color: "text-blue-400",
-      borderColor: "border-blue-500/30",
-      bgColor: "bg-blue-500/10",
+      borderColor: "border-blue-500/30 hover:border-blue-400/60",
+      bgColor: "bg-blue-500/10 hover:bg-blue-500/20",
     },
     {
-      value: "SAFETY_OFFICER",
+      role: "SAFETY_OFFICER",
       label: "Safety Officer",
-      desc: "Monitor driver compliance & safety scores",
+      desc: "Drivers & Compliance",
       icon: <Shield className="w-4 h-4" />,
       color: "text-emerald-400",
-      borderColor: "border-emerald-500/30",
-      bgColor: "bg-emerald-500/10",
+      borderColor: "border-emerald-500/30 hover:border-emerald-400/60",
+      bgColor: "bg-emerald-500/10 hover:bg-emerald-500/20",
     },
     {
-      value: "FINANCIAL_ANALYST",
+      role: "FINANCIAL_ANALYST",
       label: "Financial Analyst",
-      desc: "Track fuel costs, expenses & ROI analytics",
+      desc: "Fuel, Expenses & ROI",
       icon: <BarChart3 className="w-4 h-4" />,
       color: "text-violet-400",
-      borderColor: "border-violet-500/30",
-      bgColor: "bg-violet-500/10",
+      borderColor: "border-violet-500/30 hover:border-violet-400/60",
+      bgColor: "bg-violet-500/10 hover:bg-violet-500/20",
     },
   ];
 
@@ -102,15 +121,15 @@ export default function RegisterPage() {
           muted
           playsInline
         />
-        
+
         {/* Multi-layer gradient overlays for cinematic depth */}
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/70 to-slate-900/40 z-[1]" />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-slate-950/60 z-[1]" />
         <div className="absolute inset-0 bg-gradient-to-br from-amber-900/10 via-transparent to-blue-900/15 z-[1]" />
-        
+
         {/* Content over video */}
         <div className="relative z-10 flex flex-col justify-between h-full p-10 xl:p-14">
-          
+
           {/* Brand header */}
           <div className="flex items-center gap-3.5">
             <div className="w-11 h-11 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shadow-lg shadow-amber-500/10 backdrop-blur-sm">
@@ -141,32 +160,32 @@ export default function RegisterPage() {
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm text-[11px] font-semibold text-slate-300">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Join the Platform
+                Enterprise Fleet Management Platform
               </div>
               <h1 className="text-5xl xl:text-6xl font-black leading-[1.05] tracking-tight">
-                <span className="text-white">Get started</span> <br />
+                <span className="text-white">Join the</span> <br />
                 <span className="bg-gradient-to-r from-amber-400 via-amber-300 to-orange-400 bg-clip-text text-transparent">
-                  in seconds.
+                  operations team.
                 </span>
               </h1>
               <p className="text-[15px] text-slate-400 leading-relaxed font-medium max-w-md">
-                Register your account and choose your role. Each role unlocks a tailored dashboard with the exact tools you need.
+                Create your account and start managing your fleet with role-based access controls tailored to your responsibilities.
               </p>
             </div>
 
-            {/* Role cards */}
+            {/* Role privilege cards - horizontal */}
             <div className="space-y-3 pt-2">
               <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Available Roles</p>
               <div className="grid grid-cols-2 gap-2.5">
-                {roleOptions.map((rc) => (
+                {roleCards.map((rc) => (
                   <div
-                    key={rc.value}
-                    className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border backdrop-blur-sm transition-all duration-300 cursor-default ${rc.borderColor} ${rc.bgColor} hover:scale-[1.02]`}
+                    key={rc.role}
+                    className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border backdrop-blur-sm transition-all duration-300 cursor-default ${rc.borderColor} ${rc.bgColor}`}
                   >
                     <div className={rc.color}>{rc.icon}</div>
                     <div>
                       <p className="text-[11px] font-bold text-white/90">{rc.label}</p>
-                      <p className="text-[9px] text-slate-400 font-medium leading-tight">{rc.desc}</p>
+                      <p className="text-[9px] text-slate-400 font-medium">{rc.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -208,13 +227,11 @@ export default function RegisterPage() {
           {/* Form Card */}
           <div className="p-8 sm:p-10 rounded-3xl bg-white border border-slate-200/80 shadow-2xl shadow-slate-200/50">
             <div className="mb-7">
-              <h2 className="text-2xl font-black tracking-tight text-slate-900 flex items-center gap-2">
-                Create your account
-              </h2>
-              <p className="text-sm text-slate-500 mt-1.5 font-medium">Get access to TransitOps Logistics Suite</p>
+              <h2 className="text-2xl font-black tracking-tight text-slate-900">Create account</h2>
+              <p className="text-sm text-slate-500 mt-1.5 font-medium">Get started with your operations dashboard</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               {/* Error Notification */}
               {error && (
                 <div className="p-4 rounded-xl bg-red-50 border border-red-200/50 flex items-start gap-3 text-xs text-red-800">
@@ -231,13 +248,12 @@ export default function RegisterPage() {
                 <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200/50 flex items-start gap-3 text-xs text-emerald-800">
                   <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold">Success</p>
-                    <p className="mt-0.5 text-emerald-700/90 leading-relaxed">{success}</p>
+                    <p className="font-semibold">{success}</p>
                   </div>
                 </div>
               )}
 
-              {/* Full Name Field */}
+              {/* Name Field */}
               <div className="space-y-2">
                 <label htmlFor="name" className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                   Full Name
@@ -249,7 +265,7 @@ export default function RegisterPage() {
                   <input
                     id="name"
                     type="text"
-                    placeholder="e.g. Marcus V."
+                    placeholder="e.g. Alex Rivera"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="w-full pl-11 pr-4 py-3 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all duration-200"
@@ -297,10 +313,10 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* Role Select Dropdown */}
+              {/* Role Select */}
               <div className="space-y-2">
                 <label htmlFor="role" className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                  Role (RBAC Scope)
+                  Role
                 </label>
                 <div className="relative group">
                   <span className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none z-10">
@@ -310,37 +326,38 @@ export default function RegisterPage() {
                     id="role"
                     value={role}
                     onChange={(e) => setRole(e.target.value as RoleName)}
-                    className="w-full pl-11 pr-10 py-3 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all duration-200 appearance-none cursor-pointer"
+                    className="w-full pl-11 pr-4 py-3 text-sm rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all duration-200 appearance-none cursor-pointer"
                   >
                     <option value="FLEET_MANAGER">Fleet Manager</option>
                     <option value="DISPATCHER">Dispatcher</option>
                     <option value="SAFETY_OFFICER">Safety Officer</option>
                     <option value="FINANCIAL_ANALYST">Financial Analyst</option>
                   </select>
-                  <span className="absolute inset-y-0 right-3.5 flex items-center pointer-events-none text-slate-400">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </span>
                 </div>
               </div>
 
-              {/* Submit Button */}
+              {/* Sign Up Button */}
               <button
                 type="submit"
-                className="w-full py-3.5 px-4 rounded-xl text-white font-bold text-sm bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-lg shadow-amber-200/50 hover:shadow-amber-300/50 transition-all duration-300 active:scale-[0.98] mt-1 flex items-center justify-center gap-2 cursor-pointer"
+                disabled={loading}
+                className="w-full py-3.5 px-4 rounded-xl text-white font-bold text-sm bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-lg shadow-amber-200/50 hover:shadow-amber-300/50 transition-all duration-300 active:scale-[0.98] mt-1 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
               >
-                <UserPlus className="w-4 h-4" />
-                Create Account
-                <ArrowRight className="w-4 h-4" />
+                {loading ? (
+                  <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                ) : (
+                  <>
+                    <UserPlus className="w-4 h-4" />
+                    Create Account
+                  </>
+                )}
               </button>
             </form>
 
-            {/* Login link switcher */}
+            {/* Login link */}
             <div className="mt-6 text-center text-xs text-slate-500 font-medium">
               Already have an account?{" "}
               <Link href="/login" className="text-amber-600 font-extrabold hover:text-amber-700 hover:underline transition-all">
-                Sign In instead
+                Sign in
               </Link>
             </div>
           </div>

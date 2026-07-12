@@ -2,13 +2,13 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useSession } from "@/providers/SessionProvider";
 import { useDrivers } from "@/hooks/useDrivers";
-import { useMockData } from "@/context/MockDataContext";
 import { Plus, X, AlertCircle, ShieldAlert, Award, Search } from "lucide-react";
 
 export default function DriversPage() {
   const { drivers, addDriver, updateDriverStatus } = useDrivers();
-  const { currentUser } = useMockData();
+  const { user } = useSession();
 
   // Search & Filter State
   const [searchTerm, setSearchTerm] = useState("");
@@ -26,7 +26,7 @@ export default function DriversPage() {
   const [licenseExpiry, setLicenseExpiry] = useState("");
   const [contactNumber, setContactNumber] = useState("");
 
-  const canModify = currentUser?.role === "SAFETY_OFFICER" || currentUser?.role === "FLEET_MANAGER";
+  const canModify = user?.role === "SAFETY_OFFICER" || user?.role === "FLEET_MANAGER";
 
   // Filter logic
   const filteredDrivers = drivers.filter((d) => {
@@ -56,7 +56,7 @@ export default function DriversPage() {
     return new Date(expiryStr) < new Date();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -75,7 +75,7 @@ export default function DriversPage() {
       safetyScore: 100, // starting safety score
     };
 
-    const res = addDriver(payload);
+    const res = await addDriver(payload);
     if (res.success) {
       setIsModalOpen(false);
       // Reset Form

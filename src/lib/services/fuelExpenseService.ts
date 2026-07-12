@@ -1,32 +1,35 @@
 import { prisma } from "@/lib/prisma";
 import { orgScope } from "@/lib/rbac";
 import type { AuthUser } from "@/types/rbac";
+import type { CreateFuelLogInput } from "@/lib/validations/fuelExpense.schema";
 import { NotFoundError } from "@/lib/errors";
-import { Prisma } from "@/generated/prisma/client";
 
 export class FuelExpenseService {
-  static async createFuelLog(user: AuthUser, input: Record<string, unknown>) {
+  static async createFuelLog(user: AuthUser, input: CreateFuelLogInput) {
     return prisma.fuelLog.create({
       data: {
-        ...input,
+        vehicleId: input.vehicleId,
+        date: input.date ?? new Date(),
+        liters: input.liters,
+        cost: input.cost,
         organizationId: user.organizationId,
-      } as unknown as Prisma.FuelLogCreateInput,
+      },
     });
   }
 
   static async listFuelLogs(user: AuthUser, page: number, limit: number, filters?: Record<string, unknown>) {
     const skip = (page - 1) * limit;
-    const where = { ...orgScope(user), ...filters };
+    const where = { ...orgScope(user), ...filters } as Record<string, unknown>;
 
     const [items, total] = await Promise.all([
       prisma.fuelLog.findMany({
-        where,
+        where: where as any,
         skip,
         take: limit,
-        include: { vehicle: true, driver: true },
+        include: { vehicle: true },
         orderBy: { createdAt: "desc" },
       }),
-      prisma.fuelLog.count({ where }),
+      prisma.fuelLog.count({ where: where as any }),
     ]);
 
     return { items, total, page, limit };
@@ -35,7 +38,7 @@ export class FuelExpenseService {
   static async getFuelLogById(user: AuthUser, id: string) {
     const log = await prisma.fuelLog.findUnique({
       where: { id },
-      include: { vehicle: true, driver: true },
+      include: { vehicle: true },
     });
 
     if (!log) throw new NotFoundError("Fuel log");

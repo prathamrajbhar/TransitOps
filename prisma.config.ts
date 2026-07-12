@@ -1,5 +1,5 @@
 // Prisma v7 configuration
-// npx prisma — loads env from .env automatically
+import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
 export default defineConfig({

@@ -2,10 +2,11 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useSession } from "@/providers/SessionProvider";
 import { useTrips } from "@/hooks/useTrips";
 import { useVehicles } from "@/hooks/useVehicles";
 import { useDrivers } from "@/hooks/useDrivers";
-import { useMockData, Trip } from "@/context/MockDataContext";
+import type { Trip } from "@/context/MockDataContext";
 import {
   Route, Plus, X, Search, AlertTriangle, Check,
   Truck, Users, MapPin, Package, Navigation,
@@ -17,7 +18,7 @@ export default function TripsPage() {
   const { trips, createTrip, dispatchTrip, cancelTrip, completeTrip } = useTrips();
   const { vehicles } = useVehicles();
   const { drivers } = useDrivers();
-  const { currentUser } = useMockData();
+  const { user } = useSession();
 
   // Form States
   const [source, setSource] = useState("");
@@ -40,7 +41,7 @@ export default function TripsPage() {
   const [modalError, setModalError] = useState<string | null>(null);
 
   // Role access check
-  const canModify = currentUser?.role === "DISPATCHER" || currentUser?.role === "FLEET_MANAGER";
+  const canModify = user?.role === "DISPATCHER" || user?.role === "FLEET_MANAGER";
 
   // Dynamic Trip Lifecycle Stepper matching the 4-step reference
   const renderTripStepper = (status: string) => {
@@ -146,7 +147,7 @@ export default function TripsPage() {
     return matchSearch && matchStatus;
   });
 
-  const handleCreateTrip = (e: React.FormEvent) => {
+  const handleCreateTrip = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
     setFormSuccess(false);
@@ -166,7 +167,7 @@ export default function TripsPage() {
       etaMinutes: null,
     };
 
-    const res = createTrip(payload);
+    const res = await createTrip(payload);
     if (res.success) {
       setFormSuccess(true);
       setSource("");
@@ -181,18 +182,18 @@ export default function TripsPage() {
     }
   };
 
-  const handleDispatch = (id: string) => {
-    const res = dispatchTrip(id);
+  const handleDispatch = async (id: string) => {
+    const res = await dispatchTrip(id);
     if (!res.success) {
       alert(res.error || "Dispatch failed.");
     }
   };
 
-  const handleCancel = (id: string) => {
-    cancelTrip(id);
+  const handleCancel = async (id: string) => {
+    await cancelTrip(id);
   };
 
-  const handleCompleteSubmit = (e: React.FormEvent) => {
+  const handleCompleteSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeTripToComplete) return;
     setModalError(null);
@@ -200,7 +201,7 @@ export default function TripsPage() {
       setModalError("Please fill out both fields.");
       return;
     }
-    const res = completeTrip(
+    const res = await completeTrip(
       activeTripToComplete.id,
       Number(finalOdometer),
       Number(fuelConsumed)

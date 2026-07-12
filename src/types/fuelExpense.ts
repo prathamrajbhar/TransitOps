@@ -3,22 +3,15 @@
  * Application-level types for fuel logs and expenses (DTOs for API responses).
  */
 
-import type { EXPENSE_CATEGORY } from "../lib/constants";
-
-type ExpenseCategoryValue = (typeof EXPENSE_CATEGORY)[keyof typeof EXPENSE_CATEGORY];
-
 // ─── Fuel Log ──────────────────────────────────────────────
 
 /** Core fuel log shape returned by the API */
 export interface FuelLogDTO {
   id: string;
   vehicleId: string;
-  driverId: string | null;
+  date: string;
   liters: number;
-  costPerLiter: number;
-  totalCost: number;
-  odometerKm: number | null;
-  station: string | null;
+  cost: number;
   organizationId: string;
   createdAt: string;
 }
@@ -27,18 +20,14 @@ export interface FuelLogDTO {
 export interface FuelLogListItem extends FuelLogDTO {
   vehicle?: {
     id: string;
-    plateNumber: string;
-  };
-  driver?: {
-    id: string;
-    name: string;
+    registrationNo: string;
+    nameModel: string;
   };
 }
 
 /** Fuel log query filters */
 export interface FuelLogFilters {
   vehicleId?: string;
-  driverId?: string;
   from?: string;
   to?: string;
   page?: number;
@@ -50,10 +39,10 @@ export interface FuelLogFilters {
 /** Core expense shape returned by the API */
 export interface ExpenseDTO {
   id: string;
-  category: ExpenseCategoryValue;
-  amount: number;
-  description: string;
-  date: string;
+  toll: number;
+  other: number;
+  maintenanceLinked: number;
+  total: number;
   vehicleId: string | null;
   tripId: string | null;
   organizationId: string;
@@ -65,18 +54,19 @@ export interface ExpenseDTO {
 export interface ExpenseListItem extends ExpenseDTO {
   vehicle?: {
     id: string;
-    plateNumber: string;
+    registrationNo: string;
+    nameModel: string;
   };
   trip?: {
     id: string;
-    origin: string;
+    tripCode: string;
+    source: string;
     destination: string;
   };
 }
 
 /** Expense query filters */
 export interface ExpenseFilters {
-  category?: ExpenseCategoryValue;
   vehicleId?: string;
   tripId?: string;
   from?: string;
@@ -94,11 +84,8 @@ export interface OperationalCostSummary {
   totalExpenses: number;
   costByVehicle: Array<{
     vehicleId: string;
-    plateNumber: string;
+    registrationNo: string;
+    nameModel: string;
     totalCost: number;
-  }>;
-  costByCategory: Array<{
-    category: string;
-    total: number;
   }>;
 }

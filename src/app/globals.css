@@ -1,12 +1,42 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Outfit', 'Inter', system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit', 'Google Sans', 'Plus Jakarta Sans', sans-serif;
   --color-brand-50: #fffbeb;
   --color-brand-100: #fef3c7;
   --color-brand-500: #f59e0b;
   --color-brand-600: #d97706;
   --color-brand-700: #b45309;
+  
+  /* Globally scale up typography sizes */
+  --text-xs: 0.8125rem;     /* 13px (from 12px) */
+  --text-sm: 0.9375rem;     /* 15px (from 14px) */
+  --text-base: 1.0625rem;   /* 17px (from 16px) */
+  --text-lg: 1.1875rem;     /* 19px (from 18px) */
+  --text-xl: 1.375rem;      /* 22px (from 20px) */
+  --text-2xl: 1.625rem;     /* 26px (from 24px) */
+  --text-3xl: 2.125rem;     /* 34px (from 30px) */
+  --text-4xl: 2.5rem;       /* 40px (from 36px) */
+  --text-5xl: 3.25rem;      /* 52px (from 48px) */
+  --text-6xl: 4.25rem;      /* 68px (from 60px) */
+}
+
+body {
+  color: #0f172a; /* Slate 900 for deeper, crisper text color */
+  overflow-x: hidden;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "calt", "liga";
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.015em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display) !important;
+  letter-spacing: -0.03em !important;
+  font-weight: 800 !important;
+  color: #0f172a;
 }
 
 @utility glass-panel {
@@ -65,11 +95,6 @@
     radial-gradient(at 50% 100%, rgba(20, 184, 166, 0.04) 0px, transparent 50%),
     radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.05) 0px, transparent 50%);
   background-attachment: fixed;
-}
-
-body {
-  color: #1e293b;
-  overflow-x: hidden;
 }
 
 /* Custom scrollbars */

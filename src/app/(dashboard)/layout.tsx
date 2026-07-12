@@ -2,7 +2,8 @@
 
 import React, { useLayoutEffect, useEffect, useState, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { useMockData, RBAC_MATRIX, ModuleName } from "@/context/MockDataContext";
+import { useSession } from "@/providers/SessionProvider";
+import { RBAC_MATRIX, ModuleName } from "@/context/MockDataContext";
 import Sidebar from "@/components/layout/Sidebar";
 import Topbar from "@/components/layout/Topbar";
 import { ShieldAlert } from "lucide-react";
@@ -10,7 +11,7 @@ import { ShieldAlert } from "lucide-react";
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { currentUser } = useMockData();
+  const { user } = useSession();
   const [mounted, setMounted] = useState(false);
   const [deniedNotice, setDeniedNotice] = useState<string | null>(null);
 
@@ -30,33 +31,33 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, []);
 
   useEffect(() => {
-    if (mounted && !currentUser) {
+    if (mounted && !user) {
       router.push("/login");
     }
-  }, [currentUser, router, mounted]);
+  }, [user, router, mounted]);
 
   // Route-level RBAC Page Guarding
   useEffect(() => {
-    if (!mounted || !currentUser) return;
+    if (!mounted || !user) return;
 
     const matchedPrefix = Object.keys(pathToModule).find(prefix => pathname.startsWith(prefix));
 
     if (matchedPrefix) {
       const moduleName = pathToModule[matchedPrefix];
-      const access = RBAC_MATRIX[currentUser.role]?.[moduleName];
+      const access = RBAC_MATRIX[user.role]?.[moduleName];
 
       if (!access || access === "NONE") {
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setDeniedNotice(`Access Denied: Your role (${currentUser.role.replace("_", " ")}) does not have permission to view '${matchedPrefix}' modules.`);
+        setDeniedNotice(`Access Denied: Your role (${user.role.replace("_", " ")}) does not have permission to view '${matchedPrefix}' modules.`);
         router.push("/dashboard");
         // Clear notice after 5 seconds
         const timer = setTimeout(() => setDeniedNotice(null), 5000);
         return () => clearTimeout(timer);
       }
     }
-  }, [pathname, currentUser, mounted, router, pathToModule]);
+  }, [pathname, user, mounted, router, pathToModule]);
 
-  if (!mounted || !currentUser) {
+  if (!mounted || !user) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans">
         <div className="flex flex-col items-center gap-4">

@@ -2,13 +2,14 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useSession } from "@/providers/SessionProvider";
 import { useVehicles } from "@/hooks/useVehicles";
-import { useMockData } from "@/context/MockDataContext";
+import { formatCurrency, formatDistance } from "@/lib/utils/format";
 import { Plus, X, ShieldAlert, AlertCircle, Search } from "lucide-react";
 
 export default function FleetPage() {
   const { vehicles, addVehicle, retireVehicle } = useVehicles();
-  const { currentUser, formatCurrency, formatDistance } = useMockData();
+  const { user } = useSession();
 
   // Filters State
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,7 +30,7 @@ export default function FleetPage() {
   const [region, setRegion] = useState("West");
 
   // Role access check
-  const canModify = currentUser?.role === "FLEET_MANAGER";
+  const canModify = user?.role === "FLEET_MANAGER";
 
   // Filter logic
   const filteredVehicles = vehicles.filter((v) => {
@@ -55,7 +56,7 @@ export default function FleetPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -74,7 +75,7 @@ export default function FleetPage() {
       region,
     };
 
-    const res = addVehicle(payload);
+    const res = await addVehicle(payload);
     if (res.success) {
       setIsModalOpen(false);
       // Reset form

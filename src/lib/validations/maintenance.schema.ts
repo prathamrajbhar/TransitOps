@@ -1,36 +1,25 @@
 /**
  * src/lib/validations/maintenance.schema.ts
- * Zod schemas for maintenance record operations.
+ * Zod schemas for maintenance records — aligned with frontend MockDataContext types.
  */
 import { z } from "zod";
 
-const MAINTENANCE_TYPES = [
-  "PREVENTIVE", "CORRECTIVE", "INSPECTION", "TIRE", "OIL_CHANGE", "OTHER",
-] as const;
+const MAINTENANCE_STATUSES = ["ACTIVE", "COMPLETED"] as const;
 
-const MAINTENANCE_STATUSES = [
-  "SCHEDULED", "IN_PROGRESS", "COMPLETED", "CANCELLED",
-] as const;
-
-// ─── Create ───────────────────────────────────────────────────────
+// ─── Create ───────────────────────────────────────
 export const CreateMaintenanceSchema = z.object({
   vehicleId: z.string().cuid("Invalid vehicle ID"),
-  type: z.enum(MAINTENANCE_TYPES).default("OTHER"),
-  description: z.string().min(5, "Description must be at least 5 characters").max(1000).trim(),
-  scheduledAt: z.coerce.date({ error: "Invalid scheduled date" }),
-  costAmount: z.number().nonnegative("Cost must be non-negative").optional(),
-  status: z.enum(MAINTENANCE_STATUSES).default("SCHEDULED"),
+  serviceType: z.string().min(2, "Service type is required").max(255).trim(),
+  cost: z.number().nonnegative("Cost must be non-negative"),
+  serviceDate: z.coerce.date({ error: "Invalid service date" }),
+  status: z.enum(MAINTENANCE_STATUSES).default("ACTIVE"),
 });
 export type CreateMaintenanceInput = z.infer<typeof CreateMaintenanceSchema>;
 
-// ─── Update ───────────────────────────────────────────────────────
+// ─── Update ───────────────────────────────────────
 export const UpdateMaintenanceSchema = CreateMaintenanceSchema.partial();
 export type UpdateMaintenanceInput = z.infer<typeof UpdateMaintenanceSchema>;
 
-// ─── Close (mark completed) ───────────────────────────────────────
-export const CloseMaintenanceSchema = z.object({
-  completedAt: z.coerce.date().optional(),
-  costAmount: z.number().nonnegative().optional(),
-  notes: z.string().max(1000).optional(),
-});
+// ─── Close (mark completed) ───────────────────────
+export const CloseMaintenanceSchema = z.object({});
 export type CloseMaintenanceInput = z.infer<typeof CloseMaintenanceSchema>;

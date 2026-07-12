@@ -3,15 +3,15 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useMockData, RoleName } from "@/context/MockDataContext";
+import { useSession } from "@/providers/SessionProvider";
+import type { RoleName } from "@/context/MockDataContext";
 import { Shield, Lock, Mail, AlertCircle, Eye, EyeOff, Truck, Route, BarChart3, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, currentUser } = useMockData();
-  
+  const { user, refresh } = useSession();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("admin"); // default password for ease of hackathon test
+  const [password, setPassword] = useState("Manager@123");
   
   const [error, setError] = useState<string | null>(null);
   const [rememberMe, setRememberMe] = useState(true);
@@ -19,12 +19,12 @@ export default function LoginPage() {
 
   // If already logged in, redirect to dashboard
   useEffect(() => {
-    if (currentUser) {
+    if (user) {
       router.push("/dashboard");
     }
-  }, [currentUser, router]);
+  }, [user, router]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -32,23 +32,41 @@ export default function LoginPage() {
       setError("Please enter your email address.");
       return;
     }
-    const res = login(email.trim());
-    if (res.success) {
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+      const body = await res.json();
+
+      if (!res.ok) {
+        throw new Error(body.error || "Invalid credentials.");
+      }
+
+      await refresh();
       router.push("/dashboard");
-    } else {
-      setError(res.error || "Invalid credentials. Please verify your email.");
+    } catch (err) {
+      setError((err as Error).message || "Sign in failed. Please try again.");
     }
   };
 
   const handleAutofill = (type: RoleName) => {
     const emails: Record<RoleName, string> = {
-      FLEET_MANAGER: "manager@transitops.in",
-      DISPATCHER: "dispatcher@transitops.in",
-      SAFETY_OFFICER: "safety@transitops.in",
-      FINANCIAL_ANALYST: "analyst@transitops.in",
+      FLEET_MANAGER: "manager@transitops.com",
+      DISPATCHER: "dispatcher@transitops.com",
+      SAFETY_OFFICER: "safety@transitops.com",
+      FINANCIAL_ANALYST: "finance@transitops.com",
+    };
+    const passwords: Record<RoleName, string> = {
+      FLEET_MANAGER: "Manager@123",
+      DISPATCHER: "Dispatcher@123",
+      SAFETY_OFFICER: "Manager@123",
+      FINANCIAL_ANALYST: "Manager@123",
     };
     setEmail(emails[type]);
-    setPassword("admin");
+    setPassword(passwords[type]);
     setError(null);
   };
 

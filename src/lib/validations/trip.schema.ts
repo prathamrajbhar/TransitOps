@@ -1,40 +1,36 @@
 /**
  * src/lib/validations/trip.schema.ts
- * Zod schemas for trip lifecycle operations.
+ * Zod schemas for trip lifecycle — aligned with frontend MockDataContext types.
  */
 import { z } from "zod";
 
-// ─── Create ───────────────────────────────────────────────────────
+// ─── Create ───────────────────────────────────────
 export const CreateTripSchema = z.object({
-  vehicleId: z.string().cuid("Invalid vehicle ID"),
-  driverId: z.string().cuid("Invalid driver ID"),
-  origin: z.string().min(2, "Origin is required").max(255).trim(),
+  source: z.string().min(2, "Source is required").max(255).trim(),
   destination: z.string().min(2, "Destination is required").max(255).trim(),
-  distanceKm: z.number().positive("Distance must be positive").optional(),
-  startTime: z.coerce.date({ error: "Invalid start date/time" }),
-  endTime: z.coerce.date().optional(),
+  vehicleId: z.string().nullable().optional(),
+  driverId: z.string().nullable().optional(),
+  cargoWeightKg: z.number().nonnegative("Cargo weight must be non-negative"),
+  plannedDistanceKm: z.number().positive("Planned distance must be positive"),
+  etaMinutes: z.number().int().nonnegative().optional().nullable(),
 });
 export type CreateTripInput = z.infer<typeof CreateTripSchema>;
 
-// ─── Update ───────────────────────────────────────────────────────
+// ─── Update ───────────────────────────────────────
 export const UpdateTripSchema = CreateTripSchema.partial();
 export type UpdateTripInput = z.infer<typeof UpdateTripSchema>;
 
-// ─── Dispatch ────────────────────────────────────────────────────
-export const DispatchTripSchema = z.object({
-  startTime: z.coerce.date().optional(),
-});
+// ─── Dispatch ────────────────────────────────────
+export const DispatchTripSchema = z.object({});
 export type DispatchTripInput = z.infer<typeof DispatchTripSchema>;
 
-// ─── Complete ────────────────────────────────────────────────────
+// ─── Complete ────────────────────────────────────
 export const CompleteTripSchema = z.object({
-  endTime: z.coerce.date().optional(),
-  distanceKm: z.number().positive().optional(),
+  finalOdometerKm: z.number().positive("Final odometer is required"),
+  fuelConsumedL: z.number().positive("Fuel consumed is required"),
 });
 export type CompleteTripInput = z.infer<typeof CompleteTripSchema>;
 
-// ─── Cancel ──────────────────────────────────────────────────────
-export const CancelTripSchema = z.object({
-  reason: z.string().min(1, "Cancellation reason is required").max(500).optional(),
-});
+// ─── Cancel ──────────────────────────────────────
+export const CancelTripSchema = z.object({});
 export type CancelTripInput = z.infer<typeof CancelTripSchema>;

@@ -2,13 +2,16 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useSession } from "@/providers/SessionProvider";
+import { useVehicles } from "@/hooks/useVehicles";
 import { useMaintenance } from "@/hooks/useMaintenance";
-import { useMockData } from "@/context/MockDataContext";
+import { formatCurrency } from "@/lib/utils/format";
 import { ShieldAlert, AlertCircle, CheckCircle2, Hammer } from "lucide-react";
 
 export default function MaintenancePage() {
+  const { user } = useSession();
+  const { vehicles } = useVehicles();
   const { maintenanceLogs, addMaintenanceLog, completeMaintenanceLog } = useMaintenance();
-  const { vehicles, currentUser, formatCurrency } = useMockData();
 
   // Form State
   const [selectedVehicleId, setSelectedVehicleId] = useState("");
@@ -18,9 +21,9 @@ export default function MaintenancePage() {
   const [status, setStatus] = useState<'ACTIVE' | 'COMPLETED'>("ACTIVE");
   const [error, setError] = useState<string | null>(null);
 
-  const canModify = currentUser?.role === "FLEET_MANAGER";
+  const canModify = user?.role === "FLEET_MANAGER";
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -37,7 +40,7 @@ export default function MaintenancePage() {
       status,
     };
 
-    const res = addMaintenanceLog(payload);
+    const res = await addMaintenanceLog(payload);
     if (res.success) {
       // Reset form
       setSelectedVehicleId("");

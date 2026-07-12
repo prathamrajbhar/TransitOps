@@ -3,7 +3,9 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useMockData, RBAC_MATRIX } from "@/context/MockDataContext";
+import { useSession } from "@/providers/SessionProvider";
+import { RBAC_MATRIX } from "@/context/MockDataContext";
+import type { RoleName, ModuleName, AccessLevel } from "@/context/MockDataContext";
 import {
   LayoutDashboard,
   Truck,
@@ -26,10 +28,11 @@ interface NavItem {
 export const Sidebar: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const { currentUser, logout, settings } = useMockData();
+  const { user, signOut } = useSession();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    await signOut();
     router.push("/login");
   };
 
@@ -38,7 +41,7 @@ export const Sidebar: React.FC = () => {
       name: "Dashboard",
       href: "/dashboard",
       icon: LayoutDashboard,
-      module: null, // Always visible
+      module: null,
     },
     {
       name: "Fleet",
@@ -85,12 +88,11 @@ export const Sidebar: React.FC = () => {
   ];
 
   const filterNavItems = (items: NavItem[]) => {
-    if (!currentUser) return [];
-    const role = currentUser.role;
-
+    if (!user) return [];
+    const role = user.role as RoleName;
     return items.filter((item) => {
       if (item.module === null) return true;
-      const access = RBAC_MATRIX[role]?.[item.module];
+      const access = (RBAC_MATRIX as Record<string, Record<string, AccessLevel>>)[role]?.[item.module];
       return access && access !== "NONE";
     });
   };
@@ -120,8 +122,8 @@ export const Sidebar: React.FC = () => {
         </div>
         <div>
           <h1 className="font-extrabold text-xl tracking-tight text-slate-900 leading-none">TransitOps</h1>
-          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider truncate block max-w-[130px]" title={settings.depotName}>
-            {settings.depotName}
+          <span className="text-xs text-slate-500 font-bold uppercase tracking-wider truncate block max-w-[130px]">
+            Transport Operations
           </span>
         </div>
       </div>
@@ -149,20 +151,20 @@ export const Sidebar: React.FC = () => {
       </nav>
 
       {/* User Session Info / Logout */}
-      {currentUser && (
+      {user && (
         <div className="p-4 border-t border-slate-200/40 bg-slate-50/30 backdrop-blur-xs flex flex-col gap-3">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center font-bold text-slate-700 shadow-sm">
-              {currentUser.name.split(" ").map((n) => n[0]).join("")}
+              {user.role.substring(0, 2)}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold text-slate-800 truncate">{currentUser.name}</p>
-              <p className="text-[10px] text-slate-500 truncate">{currentUser.email}</p>
+              <p className="text-sm font-semibold text-slate-800 truncate">{user.role.replace("_", " ")}</p>
+              <p className="text-xs text-slate-500 truncate">Logged in</p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold text-rose-600 bg-rose-50/50 hover:bg-rose-100/50 border border-rose-100 hover:border-rose-200 transition-all duration-200 active:scale-95"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold text-rose-600 bg-rose-50/50 hover:bg-rose-100/50 border border-rose-100 hover:border-rose-200 transition-all duration-200 active:scale-95 cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
             Sign Out

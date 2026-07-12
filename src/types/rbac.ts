@@ -3,13 +3,13 @@
  * Role and permission type definitions for TransitOps RBAC system.
  */
 
-// ─── Roles ───────────────────────────────────────────────────────
+// ─── Roles ───────────────────────────────────────
 
-export type Role = "ADMIN" | "MANAGER" | "DISPATCHER" | "DRIVER";
+export type Role = "FLEET_MANAGER" | "DISPATCHER" | "SAFETY_OFFICER" | "FINANCIAL_ANALYST";
 
-export const ALL_ROLES: Role[] = ["ADMIN", "MANAGER", "DISPATCHER", "DRIVER"];
+export const ALL_ROLES: Role[] = ["FLEET_MANAGER", "DISPATCHER", "SAFETY_OFFICER", "FINANCIAL_ANALYST"];
 
-// ─── Permission Keys ─────────────────────────────────────────────
+// ─── Permission Keys ─────────────────────────────
 
 export type Permission =
   // Users
@@ -59,10 +59,12 @@ export type Permission =
   | "org:read"
   | "org:update";
 
-// ─── RBAC session context ─────────────────────────────────────────
+// ─── RBAC session context ─────────────────────────
 
 export interface AuthUser {
   userId: string;
+  name: string;
+  email: string;
   role: Role;
   organizationId: string;
 }

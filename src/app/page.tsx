@@ -2,19 +2,21 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useMockData } from "@/context/MockDataContext";
+import { useSession } from "@/providers/SessionProvider";
 
 export default function RootPage() {
   const router = useRouter();
-  const { currentUser } = useMockData();
+  const { user, loading } = useSession();
 
   useEffect(() => {
-    if (currentUser) {
-      router.push("/dashboard");
-    } else {
-      router.push("/login");
+    if (!loading) {
+      if (user) {
+        router.push("/dashboard");
+      } else {
+        router.push("/login");
+      }
     }
-  }, [currentUser, router]);
+  }, [user, loading, router]);
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans">

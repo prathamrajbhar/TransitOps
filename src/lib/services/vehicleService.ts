@@ -7,9 +7,9 @@ import { NotFoundError, ConflictError } from "@/lib/errors";
 export class VehicleService {
   static async create(user: AuthUser, input: CreateVehicleInput) {
     const existing = await prisma.vehicle.findUnique({
-      where: { plateNumber: input.plateNumber },
+      where: { registrationNo: input.registrationNo },
     });
-    if (existing) throw new ConflictError("Vehicle with this plate number already exists");
+    if (existing) throw new ConflictError("Vehicle with this registration number already exists");
 
     return prisma.vehicle.create({
       data: { ...input, organizationId: user.organizationId },
@@ -18,11 +18,11 @@ export class VehicleService {
 
   static async list(user: AuthUser, page: number, limit: number, filters?: Record<string, unknown>) {
     const skip = (page - 1) * limit;
-    const where = { ...orgScope(user), ...filters };
+    const where = { ...orgScope(user), ...filters } as Record<string, unknown>;
 
     const [items, total] = await Promise.all([
-      prisma.vehicle.findMany({ where, skip, take: limit, orderBy: { createdAt: "desc" } }),
-      prisma.vehicle.count({ where }),
+      prisma.vehicle.findMany({ where: where as any, skip, take: limit, orderBy: { createdAt: "desc" } }),
+      prisma.vehicle.count({ where: where as any }),
     ]);
 
     return { items, total, page, limit };
@@ -47,16 +47,16 @@ export class VehicleService {
   static async update(user: AuthUser, id: string, input: UpdateVehicleInput) {
     const vehicle = await this.getById(user, id);
 
-    if (input.plateNumber && input.plateNumber !== vehicle.plateNumber) {
+    if (input.registrationNo && input.registrationNo !== vehicle.registrationNo) {
       const existing = await prisma.vehicle.findUnique({
-        where: { plateNumber: input.plateNumber },
+        where: { registrationNo: input.registrationNo },
       });
-      if (existing) throw new ConflictError("Vehicle with this plate number already exists");
+      if (existing) throw new ConflictError("Vehicle with this registration number already exists");
     }
 
     return prisma.vehicle.update({
       where: { id },
-      data: input,
+      data: input as any,
     });
   }
 

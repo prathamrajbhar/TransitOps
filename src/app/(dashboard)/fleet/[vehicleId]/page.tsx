@@ -2,13 +2,18 @@
 
 import React, { use } from "react";
 import { useRouter } from "next/navigation";
-import { useMockData } from "@/context/MockDataContext";
+import { useVehicles } from "@/hooks/useVehicles";
+import { useFuelExpenses } from "@/hooks/useFuelExpenses";
+import { useMaintenance } from "@/hooks/useMaintenance";
+import { formatCurrency, formatDistance } from "@/lib/utils/format";
 import { ArrowLeft, Fuel, Wrench, Truck } from "lucide-react";
 
 export default function VehicleDetailPage({ params }: { params: Promise<{ vehicleId: string }> }) {
   const router = useRouter();
   const { vehicleId } = use(params);
-  const { vehicles, fuelLogs, maintenanceLogs, formatCurrency, formatDistance } = useMockData();
+  const { vehicles } = useVehicles();
+  const { fuelLogs } = useFuelExpenses();
+  const { maintenanceLogs } = useMaintenance();
 
   const vehicle = vehicles.find((v) => v.id === vehicleId);
 

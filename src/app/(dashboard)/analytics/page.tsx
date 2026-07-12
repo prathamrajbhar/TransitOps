@@ -2,8 +2,13 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useVehicles } from "@/hooks/useVehicles";
+import { useTrips } from "@/hooks/useTrips";
+import { useMaintenance } from "@/hooks/useMaintenance";
+import { useFuelExpenses } from "@/hooks/useFuelExpenses";
 import { useAnalytics } from "@/hooks/useAnalytics";
-import { useMockData, Trip } from "@/context/MockDataContext";
+import { formatCurrency } from "@/lib/utils/format";
+import type { Trip } from "@/context/MockDataContext";
 import {
   Download,
   Gauge,
@@ -16,7 +21,10 @@ import {
 
 export default function AnalyticsPage() {
   const { getVehicleROI } = useAnalytics();
-  const { vehicles, trips, maintenanceLogs, fuelLogs, formatCurrency } = useMockData();
+  const { vehicles } = useVehicles();
+  const { trips } = useTrips();
+  const { maintenanceLogs } = useMaintenance();
+  const { fuelLogs } = useFuelExpenses();
   const [timeFilter, setTimeFilter] = useState<"WEEKLY" | "MONTHLY" | "YEARLY">("MONTHLY");
   const [activeTooltip, setActiveTooltip] = useState<number | null>(null);
   const [timestamp] = useState(() => Date.now());

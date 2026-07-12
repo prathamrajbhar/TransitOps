@@ -1,24 +1,19 @@
 /**
  * src/lib/validations/expense.schema.ts
- * Zod schemas for expense CRUD operations.
+ * Zod schemas for expense operations — aligned with frontend MockDataContext types.
  */
 import { z } from "zod";
 
-const EXPENSE_CATEGORIES = [
-  "FUEL", "MAINTENANCE", "INSURANCE", "TOLL", "PARKING", "SALARY", "OFFICE", "OTHER",
-] as const;
-
-// ─── Create ───────────────────────────────────────────────────────
+// ─── Create ───────────────────────────────────────
 export const CreateExpenseSchema = z.object({
-  category: z.enum(EXPENSE_CATEGORIES).default("OTHER"),
-  amount: z.number().positive("Amount must be positive"),
-  description: z.string().min(3, "Description must be at least 3 characters").max(500).trim(),
-  date: z.coerce.date().optional(),
-  vehicleId: z.string().cuid("Invalid vehicle ID").optional(),
-  tripId: z.string().cuid("Invalid trip ID").optional(),
+  tripId: z.string().cuid("Invalid trip ID").nullable().optional(),
+  vehicleId: z.string().cuid("Invalid vehicle ID").nullable().optional(),
+  toll: z.number().nonnegative("Toll must be non-negative").default(0),
+  other: z.number().nonnegative("Other must be non-negative").default(0),
+  maintenanceLinked: z.number().nonnegative("Maintenance must be non-negative").default(0),
 });
 export type CreateExpenseInput = z.infer<typeof CreateExpenseSchema>;
 
-// ─── Update ───────────────────────────────────────────────────────
+// ─── Update ───────────────────────────────────────
 export const UpdateExpenseSchema = CreateExpenseSchema.partial();
 export type UpdateExpenseInput = z.infer<typeof UpdateExpenseSchema>;

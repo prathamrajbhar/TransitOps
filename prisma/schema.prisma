@@ -1,5 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// ─── TransitOps Prisma Schema ─────────────────────────────
+// Aligned with Frontend MockDataContext types so the UI
+// can be wired to the real backend API.
 
 generator client {
   provider = "prisma-client"
@@ -15,67 +16,50 @@ datasource db {
 // ─────────────────────────────────────────────
 
 enum Role {
-  ADMIN
-  MANAGER
+  FLEET_MANAGER
   DISPATCHER
-  DRIVER
-}
-
-enum DriverStatus {
-  ACTIVE
-  INACTIVE
-  ON_LEAVE
-  SUSPENDED
+  SAFETY_OFFICER
+  FINANCIAL_ANALYST
 }
 
 enum VehicleType {
-  BUS
-  MINIBUS
   VAN
   TRUCK
-  CAR
+  MINI
+  BUS
   OTHER
 }
 
 enum VehicleStatus {
-  ACTIVE
-  INACTIVE
-  IN_MAINTENANCE
+  AVAILABLE
+  ON_TRIP
+  IN_SHOP
   RETIRED
 }
 
-enum TripStatus {
-  SCHEDULED
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
+enum DriverStatus {
+  AVAILABLE
+  ON_TRIP
+  OFF_DUTY
+  SUSPENDED
 }
 
-enum MaintenanceType {
-  PREVENTIVE
-  CORRECTIVE
-  INSPECTION
-  TIRE
-  OIL_CHANGE
+enum LicenseCategory {
+  LMV
+  HMV
   OTHER
+}
+
+enum TripStatus {
+  DRAFT
+  DISPATCHED
+  COMPLETED
+  CANCELLED
 }
 
 enum MaintenanceStatus {
-  SCHEDULED
-  IN_PROGRESS
+  ACTIVE
   COMPLETED
-  CANCELLED
-}
-
-enum ExpenseCategory {
-  FUEL
-  MAINTENANCE
-  INSURANCE
-  TOLL
-  PARKING
-  SALARY
-  OFFICE
-  OTHER
 }
 
 // ─────────────────────────────────────────────
@@ -89,7 +73,6 @@ model Organization {
   settings  Json     @default("{}")
   createdAt DateTime @default(now())
 
-  // Relations
   users              User[]
   drivers            Driver[]
   vehicles           Vehicle[]
@@ -107,14 +90,13 @@ model User {
   name           String
   email          String   @unique
   passwordHash   String
-  role           Role     @default(DRIVER)
+  role           Role     @default(DISPATCHER)
   organizationId String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  // Relations
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  driver       Driver?
+  trips        Trip[]       @relation("CreatedByUser")
   expenses     Expense[]    @relation("CreatedByUser")
 
   @@index([organizationId])
@@ -123,22 +105,21 @@ model User {
 }
 
 model Driver {
-  id             String       @id @default(cuid())
-  name           String
-  email          String?      @unique
-  phone          String?
-  licenseNumber  String       @unique
-  status         DriverStatus @default(ACTIVE)
-  organizationId String
-  userId         String?      @unique
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  id              String         @id @default(cuid())
+  name            String
+  email           String         @unique
+  licenseNo       String         @unique
+  licenseCategory LicenseCategory @default(LMV)
+  licenseExpiry   DateTime
+  contactNumber   String
+  safetyScore     Int            @default(100)
+  status          DriverStatus   @default(AVAILABLE)
+  organizationId  String
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
-  // Relations
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
   trips        Trip[]
-  fuelLogs     FuelLog[]
 
   @@index([organizationId, status])
   @@index([organizationId, createdAt])
@@ -146,18 +127,19 @@ model Driver {
 }
 
 model Vehicle {
-  id             String        @id @default(cuid())
-  plateNumber    String        @unique
-  make           String
-  model          String
-  year           Int
-  type           VehicleType   @default(OTHER)
-  status         VehicleStatus @default(ACTIVE)
-  organizationId String
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id                String        @id @default(cuid())
+  registrationNo    String        @unique
+  nameModel         String
+  type              VehicleType   @default(VAN)
+  maxLoadCapacityKg Float
+  odometerKm        Float         @default(0)
+  acquisitionCost   Float         @default(0)
+  region            String        @default("West")
+  status            VehicleStatus @default(AVAILABLE)
+  organizationId    String
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
-  // Relations
   organization       Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   trips              Trip[]
   maintenanceRecords MaintenanceRecord[]
@@ -170,23 +152,28 @@ model Vehicle {
 }
 
 model Trip {
-  id             String     @id @default(cuid())
-  vehicleId      String
-  driverId       String
-  origin         String
-  destination    String
-  distanceKm     Float?
-  startTime      DateTime
-  endTime        DateTime?
-  status         TripStatus @default(SCHEDULED)
-  organizationId String
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
+  id                String     @id @default(cuid())
+  tripCode          String
+  source            String
+  destination       String
+  vehicleId         String?
+  driverId          String?
+  cargoWeightKg     Float
+  plannedDistanceKm Float
+  actualDistanceKm  Float?
+  finalOdometerKm   Float?
+  fuelConsumedL     Float?
+  status            TripStatus @default(DRAFT)
+  etaMinutes        Int?
+  createdById       String
+  organizationId    String
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
-  // Relations
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  vehicle      Vehicle      @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
-  driver       Driver       @relation(fields: [driverId], references: [id], onDelete: Restrict)
+  vehicle      Vehicle?     @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  driver       Driver?      @relation(fields: [driverId], references: [id], onDelete: SetNull)
+  creator      User         @relation("CreatedByUser", fields: [createdById], references: [id], onDelete: Restrict)
   expenses     Expense[]
 
   @@index([organizationId, status])
@@ -197,18 +184,15 @@ model Trip {
 }
 
 model MaintenanceRecord {
-  id             String            @id @default(cuid())
-  vehicleId      String
-  type           MaintenanceType   @default(OTHER)
-  description    String
-  scheduledAt    DateTime
-  completedAt    DateTime?
-  costAmount     Float?
-  status         MaintenanceStatus @default(SCHEDULED)
-  organizationId String
-  createdAt      DateTime          @default(now())
+  id              String            @id @default(cuid())
+  vehicleId       String
+  serviceType     String
+  cost            Float
+  serviceDate     DateTime
+  status          MaintenanceStatus @default(ACTIVE)
+  organizationId  String
+  createdAt       DateTime          @default(now())
 
-  // Relations
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   vehicle      Vehicle      @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
 
@@ -221,19 +205,14 @@ model MaintenanceRecord {
 model FuelLog {
   id             String   @id @default(cuid())
   vehicleId      String
-  driverId       String?
+  date           DateTime @default(now())
   liters         Float
-  costPerLiter   Float
-  totalCost      Float
-  odometerKm     Float?
-  station        String?
+  cost           Float
   organizationId String
   createdAt      DateTime @default(now())
 
-  // Relations
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   vehicle      Vehicle      @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  driver       Driver?      @relation(fields: [driverId], references: [id], onDelete: SetNull)
 
   @@index([organizationId, createdAt])
   @@index([vehicleId])
@@ -241,25 +220,24 @@ model FuelLog {
 }
 
 model Expense {
-  id             String          @id @default(cuid())
-  category       ExpenseCategory @default(OTHER)
-  amount         Float
-  description    String
-  date           DateTime        @default(now())
-  vehicleId      String?
-  tripId         String?
-  organizationId String
-  createdBy      String
-  createdAt      DateTime        @default(now())
+  id                String   @id @default(cuid())
+  tripId            String?
+  vehicleId         String?
+  toll              Float    @default(0)
+  other             Float    @default(0)
+  maintenanceLinked Float    @default(0)
+  total             Float    @default(0)
+  organizationId    String
+  createdBy         String
+  createdAt         DateTime @default(now())
 
-  // Relations
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  vehicle      Vehicle?     @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
   trip         Trip?        @relation(fields: [tripId], references: [id], onDelete: SetNull)
+  vehicle      Vehicle?     @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
   creator      User         @relation("CreatedByUser", fields: [createdBy], references: [id], onDelete: Restrict)
 
   @@index([organizationId, createdAt])
-  @@index([organizationId, category])
+  @@index([tripId])
   @@map("expenses")
 }
 
@@ -269,7 +247,6 @@ model Settings {
   key            String
   value          Json
 
-  // Relations
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([organizationId, key])
