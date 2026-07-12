@@ -24,67 +24,67 @@
 
 ## 2. Prisma Client Setup
 
-- [ ] Fix `prisma.ts` global singleton pattern (remove wrong import path)
-- [ ] Configure `@prisma/adapter-pg` correctly
-- [ ] Ensure connection pooling is configured for production
-- [ ] Add soft-delete / paranoid pattern utility
-- [ ] Add pagination helper utility
+- [x] Fix `prisma.ts` global singleton pattern (remove wrong import path)
+- [x] Configure `@prisma/adapter-pg` correctly
+- [x] Ensure connection pooling is configured for production
+- [x] Add soft-delete / paranoid pattern utility
+- [x] Add pagination helper utility
 
 ## 3. Environment & Configuration
 
-- [ ] Create `.env` with `DATABASE_URL`, `AUTH_SECRET`, `NEXTAUTH_URL`
-- [ ] Create `.env.example` with documented placeholders
-- [ ] Define TypeScript config types for env vars (validated with zod)
-- [ ] Set up `next.config.ts` for production (allowed origins, headers)
+- [x] Create `.env` with `DATABASE_URL`, `AUTH_SECRET`, `NEXTAUTH_URL`
+- [x] Create `.env.example` with documented placeholders
+- [x] Define TypeScript config types for env vars (validated with zod)
+- [x] Set up `next.config.ts` for production (allowed origins, headers)
 
 ## 4. Authentication
 
-- [ ] Install and configure `next-auth` or a custom auth solution
-- [ ] Implement credential-based auth with password hashing (bcrypt)
-- [ ] Set up `[...nextauth]/route.ts` API handler
-- [ ] Implement session management (JWT or database sessions)
-- [ ] Create `src/lib/auth.ts` with auth helpers (signIn, signOut, getSession)
-- [ ] Create `src/lib/session.ts` with session read/write utilities
-- [ ] Implement `middleware.ts` for protected route enforcement
-- [ ] Add login/signup API routes or server actions
-- [ ] Add session refresh logic
+- [x] Install and configure `next-auth` or a custom auth solution
+- [x] Implement credential-based auth with password hashing (bcrypt)
+- [x] Set up `[...nextauth]/route.ts` API handler
+- [x] Implement session management (JWT or database sessions)
+- [x] Create `src/lib/auth.ts` with auth helpers (signIn, signOut, getSession)
+- [x] Create `src/lib/session.ts` with session read/write utilities
+- [x] Implement `middleware.ts` for protected route enforcement
+- [x] Add login/signup API routes or server actions
+- [x] Add session refresh logic
 
 ## 5. Authorization & RBAC
 
-- [ ] Define roles in `src/types/rbac.ts` (Admin, Manager, Dispatcher, Driver)
-- [ ] Implement permission matrix in `src/lib/rbac.ts`
-- [ ] Add role-based middleware guards
-- [ ] Add route-level authorization utility (canManageVehicles, canViewTrips, etc.)
-- [ ] Ensure multi-tenant data isolation via `organizationId` filtering
-- [ ] Add organization-scoped middleware
+- [x] Define roles in `src/types/rbac.ts` (Admin, Manager, Dispatcher, Driver)
+- [x] Implement permission matrix in `src/lib/rbac.ts`
+- [x] Add role-based middleware guards
+- [x] Add route-level authorization utility (canManageVehicles, canViewTrips, etc.)
+- [x] Ensure multi-tenant data isolation via `organizationId` filtering
+- [x] Add organization-scoped middleware
 
 ## 6. Validation Layer
 
-- [ ] Define Zod schemas in `src/lib/validations/` for:
-  - [ ] `user.schema.ts` — login, signup, profile update
-  - [ ] `vehicle.schema.ts` — create, update
-  - [ ] `driver.schema.ts` — create, update
-  - [ ] `trip.schema.ts` — create, update, dispatch, complete, cancel
-  - [ ] `fuelExpense.schema.ts` — create, update
-  - [ ] `maintenance.schema.ts` — create, update, close
-  - [ ] `expense.schema.ts` — create, update
-  - [ ] `settings.schema.ts` — upsert
-- [ ] Add shared validation helpers (pagination, date ranges, IDs)
-- [ ] Create `src/lib/validate.ts` — generic request body validator middleware
+- [x] Define Zod schemas in `src/lib/validations/` for:
+  - [x] `user.schema.ts` — login, signup, profile update
+  - [x] `vehicle.schema.ts` — create, update
+  - [x] `driver.schema.ts` — create, update
+  - [x] `trip.schema.ts` — create, update, dispatch, complete, cancel
+  - [x] `fuelExpense.schema.ts` — create, update
+  - [x] `maintenance.schema.ts` — create, update, close
+  - [x] `expense.schema.ts` — create, update
+  - [x] `settings.schema.ts` — upsert
+- [x] Add shared validation helpers (pagination, date ranges, IDs)
+- [x] Create `src/lib/validate.ts` — generic request body validator middleware
 
 ## 7. API Utilities & Error Handling
 
-- [ ] Create `src/lib/api-response.ts` with standard response helpers:
-  - [ ] `success(data, status)` — 200/201 wrapper
-  - [ ] `error(message, status, details?)` — 400/401/403/404/409/500
-  - [ ] `paginated(items, total, page, limit)` — paginated response
-- [ ] Create `src/lib/errors.ts` with custom error classes (NotFoundError, AuthError, ValidationError, ForbiddenError)
-- [ ] Create `src/lib/async-handler.ts` — wraps route handlers with try/catch
-- [ ] Create `src/lib/constants.ts` — status enums, roles, categories
+- [x] Create `src/lib/api-response.ts` with standard response helpers:
+  - [x] `success(data, status)` — 200/201 wrapper
+  - [x] `error(message, status, details?)` — 400/401/403/404/409/500
+  - [x] `paginated(items, total, page, limit)` — paginated response
+- [x] Create `src/lib/errors.ts` with custom error classes (NotFoundError, AuthError, ValidationError, ForbiddenError)
+- [x] Create `src/lib/async-handler.ts` — wraps route handlers with try/catch
+- [x] Create `src/lib/constants.ts` — status enums, roles, categories
 
 ## 8. Logging & Monitoring
 
-- [ ] Add structured logging utility (`src/lib/logger.ts`)
-- [ ] Log API requests (method, path, duration, userId)
-- [ ] Log errors with stack traces
-- [ ] Set up health-check endpoint (`GET /api/health`)
+- [x] Add structured logging utility (`src/lib/logger.ts`)
+- [x] Log API requests (method, path, duration, userId)
+- [x] Log errors with stack traces
+- [x] Set up health-check endpoint (`GET /api/health`)
