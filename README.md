@@ -4,6 +4,17 @@ TransitOps is a centralized, multi-tenant fleet management and smart transport o
 
 ---
 
+## 📸 Screenshots
+
+
+| | |
+|:---:|:---:|
+| **Login Page** <br> ![Login Page](public/screenshot/login_page.png) | **Dashboard** <br> ![Dashboard](public/screenshot/dashboard.png) |
+| **Fleet Management** <br> ![Fleet Management](public/screenshot/fleet.png) | **Trip Management** <br> ![Trip Management](public/screenshot/trip.png) |
+| **RBAC & Settings** <br> ![RBAC & Settings](public/screenshot/setting.png) | **Interactive Analytics** <br> ![Interactive Analytics](public/screenshot/analytics.png) |
+
+---
+
 ## 🚀 Key Modules & Features
 
 ### 1. Unified Dashboard
