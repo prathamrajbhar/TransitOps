@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "vehicles:read");
+    requirePermission(user, "vehicles:read");
     const { page, limit } = validateQuery(req, PaginationSchema);
     const result = await VehicleService.list(user, page, limit);
     logger.request("GET", "/api/vehicles", { userId: user.userId, durationMs: Date.now() - start, status: 200 });
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "vehicles:create");
+    requirePermission(user, "vehicles:create");
     const body = await validateBody(req, CreateVehicleSchema);
     const result = await VehicleService.create(user, body);
     logger.request("POST", "/api/vehicles", { userId: user.userId, durationMs: Date.now() - start, status: 201 });

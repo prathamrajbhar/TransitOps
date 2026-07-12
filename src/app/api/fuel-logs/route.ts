@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "fuel:read");
+    requirePermission(user, "fuel:read");
     const { page, limit } = validateQuery(req, PaginationSchema);
     const result = await FuelExpenseService.listFuelLogs(user, page, limit);
     logger.request("GET", "/api/fuel-logs", { userId: user.userId, durationMs: Date.now() - start, status: 200 });
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "fuel:create");
+    requirePermission(user, "fuel:create");
     const body = await validateBody(req, CreateFuelLogSchema);
     const result = await FuelExpenseService.createFuelLog(user, body);
     logger.request("POST", "/api/fuel-logs", { userId: user.userId, durationMs: Date.now() - start, status: 201 });

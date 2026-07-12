@@ -7,6 +7,8 @@ import { useVehicles } from "@/hooks/useVehicles";
 import { formatCurrency, formatDistance } from "@/lib/utils/format";
 import { Plus, X, ShieldAlert, AlertCircle, Search } from "lucide-react";
 
+import { useSettings } from "@/hooks/useSettings";
+
 export default function FleetPage() {
   const { vehicles, addVehicle, retireVehicle } = useVehicles();
   const { user } = useSession();
@@ -30,7 +32,7 @@ export default function FleetPage() {
   const [region, setRegion] = useState("West");
 
   // Role access check
-  const canModify = user?.role === "FLEET_MANAGER";
+  const { canModify } = useSettings({ module: "FLEET" });
 
   // Filter logic
   const filteredVehicles = vehicles.filter((v) => {

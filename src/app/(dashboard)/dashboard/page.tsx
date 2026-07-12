@@ -28,12 +28,14 @@ import {
 
 export default function DashboardPage() {
   const { user } = useSession();
+  const isFinanceOrManager = user?.role === "FLEET_MANAGER" || user?.role === "FINANCIAL_ANALYST";
+
   const { vehicles } = useVehicles();
   const { drivers } = useDrivers();
   const { trips } = useTrips();
   const { maintenanceLogs } = useMaintenance();
-  const { fuelLogs } = useFuelExpenses();
-  const { fuelEfficiency, fleetROI } = useAnalytics();
+  const { fuelLogs } = useFuelExpenses({ enabled: isFinanceOrManager });
+  const { fuelEfficiency, fleetROI } = useAnalytics({ enabled: isFinanceOrManager });
 
   // Safety Officer calculations
   const suspendedDriversCount = drivers.filter((d) => d.status === "SUSPENDED").length;

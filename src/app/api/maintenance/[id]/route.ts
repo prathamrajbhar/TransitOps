@@ -14,7 +14,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "maintenance:read");
+    requirePermission(user, "maintenance:read");
     const record = await MaintenanceService.getById(user, id);
     logger.request("GET", `/api/maintenance/${id}`, { userId: user.userId, durationMs: Date.now() - start, status: 200 });
     return success(record);
@@ -36,7 +36,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "maintenance:update");
+    requirePermission(user, "maintenance:update");
     const body = await validateBody(req, UpdateMaintenanceSchema);
     const record = await MaintenanceService.update(user, id, body);
     logger.request("PATCH", `/api/maintenance/${id}`, { userId: user.userId, durationMs: Date.now() - start, status: 200 });

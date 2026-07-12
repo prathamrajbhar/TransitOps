@@ -14,7 +14,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "vehicles:read");
+    requirePermission(user, "vehicles:read");
     const vehicle = await VehicleService.getById(user, id);
     logger.request("GET", `/api/vehicles/${id}`, { userId: user.userId, durationMs: Date.now() - start, status: 200 });
     return success(vehicle);
@@ -36,7 +36,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "vehicles:update");
+    requirePermission(user, "vehicles:update");
     const body = await validateBody(req, UpdateVehicleSchema);
     const vehicle = await VehicleService.update(user, id, body);
     logger.request("PATCH", `/api/vehicles/${id}`, { userId: user.userId, durationMs: Date.now() - start, status: 200 });
@@ -59,7 +59,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "vehicles:delete");
+    requirePermission(user, "vehicles:delete");
     await VehicleService.delete(user, id);
     logger.request("DELETE", `/api/vehicles/${id}`, { userId: user.userId, durationMs: Date.now() - start, status: 200 });
     return success({ message: "Vehicle deleted" });

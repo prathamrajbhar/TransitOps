@@ -2,33 +2,72 @@
 
 import React, { useState } from "react";
 import { useSession } from "@/providers/SessionProvider";
-import { useMockData, RoleName, RBAC_MATRIX } from "@/context/MockDataContext";
+import { RoleName, ModuleName, AccessLevel, RBAC_MATRIX } from "@/context/MockDataContext";
+import { useSettings } from "@/hooks/useSettings";
 import { Settings as SettingsIcon, ShieldCheck, CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function SettingsPage() {
   const { user } = useSession();
-  const { settings, updateSettings } = useMockData();
+  const { settings, updateSettings, userMatrix, canModify } = useSettings({ module: "SETTINGS" });
 
   // Form State
-  const [depotName, setDepotName] = useState(settings.depotName);
-  const [currency, setCurrency] = useState(settings.currency);
-  const [distanceUnit, setDistanceUnit] = useState(settings.distanceUnit);
+  const [depotName, setDepotName] = useState(settings.depotName || "Mumbai Logistics Depot");
+  const [currency, setCurrency] = useState(settings.currency || "INR");
+  const [distanceUnit, setDistanceUnit] = useState(settings.distanceUnit || "km");
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  const canModify = user?.role === "FLEET_MANAGER";
+  // Local state for the editable matrix
+  const [matrix, setMatrix] = useState<Record<RoleName, Record<ModuleName, AccessLevel>>>(RBAC_MATRIX);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  React.useEffect(() => {
+    if (settings && Object.keys(settings).length > 0) {
+      setDepotName(settings.depotName || "Mumbai Logistics Depot");
+      setCurrency(settings.currency || "INR");
+      setDistanceUnit(settings.distanceUnit || "km");
+    }
+  }, [settings]);
+
+  React.useEffect(() => {
+    if (userMatrix) {
+      setMatrix(userMatrix);
+    }
+  }, [userMatrix]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSuccessMsg(null);
 
-    updateSettings({
+    const res = await updateSettings({
       depotName,
       currency,
       distanceUnit,
+      rbac_matrix: matrix,
     });
 
-    setSuccessMsg("System configuration updated successfully!");
-    setTimeout(() => setSuccessMsg(null), 3000);
+    if (res.success) {
+      setSuccessMsg("System configuration updated successfully!");
+      setTimeout(() => setSuccessMsg(null), 3000);
+    }
+  };
+
+  const handleMatrixChange = async (role: RoleName, module: ModuleName, value: AccessLevel) => {
+    const updatedMatrix = {
+      ...matrix,
+      [role]: {
+        ...matrix[role],
+        [module]: value,
+      },
+    };
+
+    setMatrix(updatedMatrix);
+
+    // Auto-save instantly in real-time
+    await updateSettings({
+      depotName,
+      currency,
+      distanceUnit,
+      rbac_matrix: updatedMatrix,
+    });
   };
 
   const getRbacCell = (access: string) => {
@@ -39,8 +78,23 @@ export default function SettingsPage() {
         return <span className="font-semibold text-blue-600 text-xs">View</span>;
       case "NONE":
       default:
-        return <span className="text-slate-300 font-bold">—</span>;
+        return <span className="text-slate-350 font-bold">—</span>;
     }
+  };
+
+  const renderInteractiveCell = (role: RoleName, module: ModuleName) => {
+    const value = matrix[role]?.[module] || "NONE";
+    return (
+      <select
+        value={value}
+        onChange={(e) => handleMatrixChange(role, module, e.target.value as AccessLevel)}
+        className="px-2.5 py-1 text-xs rounded-xl border border-slate-200/80 bg-white text-slate-800 font-extrabold cursor-pointer outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/10 focus:bg-white"
+      >
+        <option value="FULL">✓ Full</option>
+        <option value="VIEW">View</option>
+        <option value="NONE">— None</option>
+      </select>
+    );
   };
 
   const roleLabels: Record<RoleName, string> = {
@@ -55,7 +109,7 @@ export default function SettingsPage() {
       {/* Title Header */}
       <div>
         <h2 className="text-2xl font-black text-slate-900 tracking-tight">System Settings &amp; RBAC</h2>
-        <p className="text-xs text-slate-500 mt-1">Configure global depot units and review role-based module security</p>
+        <p className="text-xs text-slate-500 mt-1">Configure global depot units and manage role-based module security</p>
       </div>
 
       {/* Two Column Layout */}
@@ -152,13 +206,13 @@ export default function SettingsPage() {
                   <th className="pb-3 text-center">Fleet</th>
                   <th className="pb-3 text-center">Driver</th>
                   <th className="pb-3 text-center">Trip</th>
+                  <th className="pb-3 text-center">Maintenance</th>
                   <th className="pb-3 text-center">Fuel/Exp.</th>
                   <th className="pb-3 text-center pr-2">Analytics</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100/50">
-                {(Object.keys(RBAC_MATRIX) as RoleName[]).map((roleKey) => {
-                  const rolePermissions = RBAC_MATRIX[roleKey];
+                {(Object.keys(matrix) as RoleName[]).map((roleKey) => {
                   const isCurrentRole = user?.role === roleKey;
                   return (
                     <tr 
@@ -175,11 +229,12 @@ export default function SettingsPage() {
                           </span>
                         )}
                       </td>
-                      <td className="py-3.5 text-center">{getRbacCell(rolePermissions.FLEET)}</td>
-                      <td className="py-3.5 text-center">{getRbacCell(rolePermissions.DRIVERS)}</td>
-                      <td className="py-3.5 text-center">{getRbacCell(rolePermissions.TRIPS)}</td>
-                      <td className="py-3.5 text-center">{getRbacCell(rolePermissions.FUEL_EXPENSES)}</td>
-                      <td className="py-3.5 text-center pr-2">{getRbacCell(rolePermissions.ANALYTICS)}</td>
+                      <td className="py-3 text-center">{canModify ? renderInteractiveCell(roleKey, "FLEET") : getRbacCell(matrix[roleKey]?.FLEET)}</td>
+                      <td className="py-3 text-center">{canModify ? renderInteractiveCell(roleKey, "DRIVERS") : getRbacCell(matrix[roleKey]?.DRIVERS)}</td>
+                      <td className="py-3 text-center">{canModify ? renderInteractiveCell(roleKey, "TRIPS") : getRbacCell(matrix[roleKey]?.TRIPS)}</td>
+                      <td className="py-3 text-center">{canModify ? renderInteractiveCell(roleKey, "MAINTENANCE") : getRbacCell(matrix[roleKey]?.MAINTENANCE)}</td>
+                      <td className="py-3 text-center">{canModify ? renderInteractiveCell(roleKey, "FUEL_EXPENSES") : getRbacCell(matrix[roleKey]?.FUEL_EXPENSES)}</td>
+                      <td className="py-3 text-center pr-2">{canModify ? renderInteractiveCell(roleKey, "ANALYTICS") : getRbacCell(matrix[roleKey]?.ANALYTICS)}</td>
                     </tr>
                   );
                 })}

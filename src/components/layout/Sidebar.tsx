@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "@/providers/SessionProvider";
+import { useSettings } from "@/hooks/useSettings";
 import { RBAC_MATRIX } from "@/context/MockDataContext";
 import type { RoleName, ModuleName, AccessLevel } from "@/context/MockDataContext";
 import {
@@ -29,6 +30,21 @@ export const Sidebar: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
   const { user, signOut } = useSession();
+  
+  const { settings } = useSettings();
+
+  const userMatrix = React.useMemo(() => {
+    if (settings && settings.rbac_matrix) {
+      try {
+        return typeof settings.rbac_matrix === "string"
+          ? JSON.parse(settings.rbac_matrix)
+          : settings.rbac_matrix;
+      } catch (e) {
+        console.error("Failed to parse dynamic RBAC matrix in sidebar", e);
+      }
+    }
+    return RBAC_MATRIX;
+  }, [settings]);
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -92,7 +108,7 @@ export const Sidebar: React.FC = () => {
     const role = user.role as RoleName;
     return items.filter((item) => {
       if (item.module === null) return true;
-      const access = (RBAC_MATRIX as Record<string, Record<string, AccessLevel>>)[role]?.[item.module];
+      const access = userMatrix[role]?.[item.module];
       return access && access !== "NONE";
     });
   };

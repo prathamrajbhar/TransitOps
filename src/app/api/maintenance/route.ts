@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "maintenance:read");
+    requirePermission(user, "maintenance:read");
     const { page, limit } = validateQuery(req, PaginationSchema);
     const result = await MaintenanceService.list(user, page, limit);
     logger.request("GET", "/api/maintenance", { userId: user.userId, durationMs: Date.now() - start, status: 200 });
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "maintenance:create");
+    requirePermission(user, "maintenance:create");
     const body = await validateBody(req, CreateMaintenanceSchema);
     const result = await MaintenanceService.create(user, body);
     logger.request("POST", "/api/maintenance", { userId: user.userId, durationMs: Date.now() - start, status: 201 });

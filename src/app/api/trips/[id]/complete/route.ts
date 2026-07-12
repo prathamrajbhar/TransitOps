@@ -14,7 +14,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "trips:complete");
+    requirePermission(user, "trips:complete");
     const body = await validateBody(req, CompleteTripSchema);
     const trip = await TripService.complete(user, id, body);
     logger.request("POST", `/api/trips/${id}/complete`, { userId: user.userId, durationMs: Date.now() - start, status: 200 });

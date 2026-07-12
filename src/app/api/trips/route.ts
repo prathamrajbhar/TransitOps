@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "trips:read");
+    requirePermission(user, "trips:read");
     const { page, limit } = validateQuery(req, PaginationSchema);
     const result = await TripService.list(user, page, limit);
     logger.request("GET", "/api/trips", { userId: user.userId, durationMs: Date.now() - start, status: 200 });
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "trips:create");
+    requirePermission(user, "trips:create");
     const body = await validateBody(req, CreateTripSchema);
     const result = await TripService.create(user, body);
     logger.request("POST", "/api/trips", { userId: user.userId, durationMs: Date.now() - start, status: 201 });

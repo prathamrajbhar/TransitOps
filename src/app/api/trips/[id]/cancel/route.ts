@@ -14,7 +14,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "trips:cancel");
+    requirePermission(user, "trips:cancel");
     const body = await validateBody(req, CancelTripSchema);
     const trip = await TripService.cancel(user, id);
     logger.request("POST", `/api/trips/${id}/cancel`, { userId: user.userId, durationMs: Date.now() - start, status: 200 });

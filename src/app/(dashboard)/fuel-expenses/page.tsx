@@ -10,6 +10,8 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { formatCurrency } from "@/lib/utils/format";
 import { Fuel, Plus, X, AlertCircle, Coins } from "lucide-react";
 
+import { useSettings } from "@/hooks/useSettings";
+
 export default function FuelExpensesPage() {
   const { user } = useSession();
   const { vehicles } = useVehicles();
@@ -34,7 +36,7 @@ export default function FuelExpensesPage() {
   const [tollCost, setTollCost] = useState("");
   const [otherCost, setOtherCost] = useState("");
 
-  const canModify = user?.role === "FINANCIAL_ANALYST";
+  const { canModify } = useSettings({ module: "FUEL_EXPENSES" });
 
   const handleFuelSubmit = (e: React.FormEvent) => {
     e.preventDefault();

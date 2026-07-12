@@ -1,5 +1,4 @@
 import "./globals.css";
-import { MockDataProvider } from "@/context/MockDataContext";
 import { QueryProvider } from "@/providers/QueryProvider";
 import { SessionProvider } from "@/providers/SessionProvider";
 
@@ -23,7 +22,7 @@ export default function RootLayout({
       <body className="antialiased min-h-screen">
         <QueryProvider>
           <SessionProvider>
-            <MockDataProvider>{children}</MockDataProvider>
+            {children}
           </SessionProvider>
         </QueryProvider>
       </body>

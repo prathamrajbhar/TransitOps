@@ -3,7 +3,8 @@
 import React, { useLayoutEffect, useEffect, useState, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useSession } from "@/providers/SessionProvider";
-import { RBAC_MATRIX, ModuleName } from "@/context/MockDataContext";
+import { ModuleName, RBAC_MATRIX } from "@/context/MockDataContext";
+import { useSettings } from "@/hooks/useSettings";
 import Sidebar from "@/components/layout/Sidebar";
 import Topbar from "@/components/layout/Topbar";
 import { ShieldAlert } from "lucide-react";
@@ -14,6 +15,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { user } = useSession();
   const [mounted, setMounted] = useState(false);
   const [deniedNotice, setDeniedNotice] = useState<string | null>(null);
+  
+  const { settings } = useSettings();
+
+  const userMatrix = useMemo(() => {
+    if (settings && settings.rbac_matrix) {
+      try {
+        return typeof settings.rbac_matrix === "string"
+          ? JSON.parse(settings.rbac_matrix)
+          : settings.rbac_matrix;
+      } catch (e) {
+        console.error("Failed to parse dynamic RBAC matrix in layout", e);
+      }
+    }
+    return RBAC_MATRIX;
+  }, [settings]);
 
   const pathToModule: Record<string, ModuleName> = useMemo(() => ({
     "/fleet": "FLEET",
@@ -44,7 +60,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     if (matchedPrefix) {
       const moduleName = pathToModule[matchedPrefix];
-      const access = RBAC_MATRIX[user.role]?.[moduleName];
+      const access = userMatrix[user.role]?.[moduleName];
 
       if (!access || access === "NONE") {
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -55,7 +71,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         return () => clearTimeout(timer);
       }
     }
-  }, [pathname, user, mounted, router, pathToModule]);
+  }, [pathname, user, mounted, router, pathToModule, userMatrix]);
 
   if (!mounted || !user) {
     return (

@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
 
-    requirePermission(user.role, "analytics:read");
+    requirePermission(user, "analytics:read");
 
     const type = req.nextUrl.searchParams.get("type") || "dashboard";
     let result;

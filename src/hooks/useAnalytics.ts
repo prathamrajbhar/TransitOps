@@ -8,28 +8,34 @@ async function fetchJson<T>(url: string): Promise<T[]> {
   return body.data ?? [];
 }
 
-export const useAnalytics = () => {
+export const useAnalytics = (options?: { enabled?: boolean }) => {
+  const enabled = options?.enabled ?? true;
+
   const vehiclesQuery = useQuery({
     queryKey: ["vehicles"],
     queryFn: () => fetchJson<Vehicle>("/api/vehicles"),
+    enabled,
   });
 
   const tripsQuery = useQuery({
     queryKey: ["trips"],
     queryFn: () => fetchJson<Trip>("/api/trips"),
+    enabled,
   });
 
   const maintenanceQuery = useQuery({
     queryKey: ["maintenance"],
     queryFn: () => fetchJson<MaintenanceLog>("/api/maintenance"),
+    enabled,
   });
 
   const fuelQuery = useQuery({
     queryKey: ["fuel-logs"],
     queryFn: () => fetchJson<FuelLog>("/api/fuel-logs"),
+    enabled,
   });
 
-  const isLoading = vehiclesQuery.isLoading || tripsQuery.isLoading || maintenanceQuery.isLoading || fuelQuery.isLoading;
+  const isLoading = enabled && (vehiclesQuery.isLoading || tripsQuery.isLoading || maintenanceQuery.isLoading || fuelQuery.isLoading);
 
   const vehicles = vehiclesQuery.data ?? [];
   const trips = tripsQuery.data ?? [];

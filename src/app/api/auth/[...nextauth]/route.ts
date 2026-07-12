@@ -80,16 +80,23 @@ export async function POST(req: NextRequest, ctx: RouteContext) {
           throw new ConflictError("An account with this email already exists");
         }
 
-        // Auto-create organization if not provided
+        // Auto-join primary organization if not provided to share same dashboard data and RBAC settings
         let organizationId = body.organizationId;
         if (!organizationId) {
-          const org = await prisma.organization.create({
-            data: {
-              name: `${body.name}'s Organization`,
-              slug: `org-${Date.now()}`,
-            },
+          const primaryOrg = await prisma.organization.findFirst({
+            orderBy: { createdAt: "asc" },
           });
-          organizationId = org.id;
+          if (primaryOrg) {
+            organizationId = primaryOrg.id;
+          } else {
+            const org = await prisma.organization.create({
+              data: {
+                name: "Primary Logistics Org",
+                slug: "primary-org",
+              },
+            });
+            organizationId = org.id;
+          }
         }
 
         // Create user

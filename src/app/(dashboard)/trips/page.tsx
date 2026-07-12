@@ -14,6 +14,8 @@ import {
   Eye, Weight, ArrowRight
 } from "lucide-react";
 
+import { useSettings } from "@/hooks/useSettings";
+
 export default function TripsPage() {
   const { trips, createTrip, dispatchTrip, cancelTrip, completeTrip } = useTrips();
   const { vehicles } = useVehicles();
@@ -41,7 +43,7 @@ export default function TripsPage() {
   const [modalError, setModalError] = useState<string | null>(null);
 
   // Role access check
-  const canModify = user?.role === "DISPATCHER" || user?.role === "FLEET_MANAGER";
+  const { canModify } = useSettings({ module: "TRIPS" });
 
   // Dynamic Trip Lifecycle Stepper matching the 4-step reference
   const renderTripStepper = (status: string) => {
@@ -154,6 +156,11 @@ export default function TripsPage() {
 
     if (!source || !destination || !cargoWeight || !plannedDistance) {
       setFormError("Please fill out Source, Destination, Cargo Weight, and Planned Distance.");
+      return;
+    }
+
+    if (capacityExceeded) {
+      setFormError("Cargo weight exceeds vehicle capacity.");
       return;
     }
 
@@ -397,7 +404,8 @@ export default function TripsPage() {
                 {/* Submit */}
                 <button
                   type="submit"
-                  className="w-full py-2.5 rounded-xl text-xs font-extrabold text-white bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-md shadow-indigo-200/40 transition-all duration-200 flex items-center justify-center gap-2"
+                  disabled={!!capacityExceeded}
+                  className="w-full py-2.5 rounded-xl text-xs font-extrabold text-white bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 shadow-md shadow-indigo-200/40 transition-all duration-200 flex items-center justify-center gap-2 disabled:from-slate-300 disabled:to-slate-400 disabled:text-slate-200 disabled:cursor-not-allowed disabled:shadow-none"
                 >
                   <Plus className="w-3.5 h-3.5" /> Create Trip (Draft)
                 </button>

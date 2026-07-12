@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "expenses:read");
+    requirePermission(user, "expenses:read");
     const { page, limit } = validateQuery(req, PaginationSchema);
     const result = await ExpenseService.list(user, page, limit);
     logger.request("GET", "/api/expenses", { userId: user.userId, durationMs: Date.now() - start, status: 200 });
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "expenses:create");
+    requirePermission(user, "expenses:create");
     const body = await validateBody(req, CreateExpenseSchema);
     const result = await ExpenseService.create(user, body);
     logger.request("POST", "/api/expenses", { userId: user.userId, durationMs: Date.now() - start, status: 201 });

@@ -8,6 +8,8 @@ import { useMaintenance } from "@/hooks/useMaintenance";
 import { formatCurrency } from "@/lib/utils/format";
 import { ShieldAlert, AlertCircle, CheckCircle2, Hammer } from "lucide-react";
 
+import { useSettings } from "@/hooks/useSettings";
+
 export default function MaintenancePage() {
   const { user } = useSession();
   const { vehicles } = useVehicles();
@@ -21,7 +23,7 @@ export default function MaintenancePage() {
   const [status, setStatus] = useState<'ACTIVE' | 'COMPLETED'>("ACTIVE");
   const [error, setError] = useState<string | null>(null);
 
-  const canModify = user?.role === "FLEET_MANAGER";
+  const { canModify } = useSettings({ module: "MAINTENANCE" });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

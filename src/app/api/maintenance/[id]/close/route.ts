@@ -14,7 +14,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "maintenance:update");
+    requirePermission(user, "maintenance:update");
     const body = await validateBody(req, CloseMaintenanceSchema);
     const record = await MaintenanceService.close(user, id);
     logger.request("POST", `/api/maintenance/${id}/close`, { userId: user.userId, durationMs: Date.now() - start, status: 200 });

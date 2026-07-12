@@ -6,6 +6,18 @@ import { NotFoundError, ConflictError } from "@/lib/errors";
 
 export class TripService {
   static async create(user: AuthUser, input: CreateTripInput) {
+    // Validate vehicle capacity if assigned
+    if (input.vehicleId) {
+      const vehicle = await prisma.vehicle.findUnique({
+        where: { id: input.vehicleId },
+      });
+      if (vehicle && input.cargoWeightKg > vehicle.maxLoadCapacityKg) {
+        throw new ConflictError(
+          `Cargo weight (${input.cargoWeightKg} kg) exceeds vehicle max capacity (${vehicle.maxLoadCapacityKg} kg)`
+        );
+      }
+    }
+
     // Generate trip code
     const count = await prisma.trip.count();
     const tripCode = `TR${String(count + 1).padStart(3, "0")}`;

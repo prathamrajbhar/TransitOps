@@ -18,17 +18,20 @@ async function fetchExpenses(): Promise<Expense[]> {
   return body.data ?? [];
 }
 
-export const useFuelExpenses = () => {
+export const useFuelExpenses = (options?: { enabled?: boolean }) => {
   const queryClient = useQueryClient();
+  const enabled = options?.enabled ?? true;
 
   const fuelQuery = useQuery({
     queryKey: FUEL_KEY,
     queryFn: fetchFuelLogs,
+    enabled,
   });
 
   const expensesQuery = useQuery({
     queryKey: EXPENSES_KEY,
     queryFn: fetchExpenses,
+    enabled,
   });
 
   const addFuelLogMutation = useMutation({

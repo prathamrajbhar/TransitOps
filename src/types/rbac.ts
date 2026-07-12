@@ -67,4 +67,5 @@ export interface AuthUser {
   email: string;
   role: Role;
   organizationId: string;
+  permissions?: string[];
 }

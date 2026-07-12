@@ -14,7 +14,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "trips:read");
+    requirePermission(user, "trips:read");
     const trip = await TripService.getById(user, id);
     logger.request("GET", `/api/trips/${id}`, { userId: user.userId, durationMs: Date.now() - start, status: 200 });
     return success(trip);
@@ -36,7 +36,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "trips:update");
+    requirePermission(user, "trips:update");
     const body = await validateBody(req, UpdateTripSchema);
     const trip = await TripService.update(user, id, body);
     logger.request("PATCH", `/api/trips/${id}`, { userId: user.userId, durationMs: Date.now() - start, status: 200 });

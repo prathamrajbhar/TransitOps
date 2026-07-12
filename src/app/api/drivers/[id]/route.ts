@@ -14,7 +14,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "drivers:read");
+    requirePermission(user, "drivers:read");
     const driver = await DriverService.getById(user, id);
     logger.request("GET", `/api/drivers/${id}`, { userId: user.userId, durationMs: Date.now() - start, status: 200 });
     return success(driver);
@@ -36,7 +36,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "drivers:update");
+    requirePermission(user, "drivers:update");
     const body = await validateBody(req, UpdateDriverSchema);
     const driver = await DriverService.update(user, id, body);
     logger.request("PATCH", `/api/drivers/${id}`, { userId: user.userId, durationMs: Date.now() - start, status: 200 });
@@ -59,7 +59,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "drivers:delete");
+    requirePermission(user, "drivers:delete");
     await DriverService.delete(user, id);
     logger.request("DELETE", `/api/drivers/${id}`, { userId: user.userId, durationMs: Date.now() - start, status: 200 });
     return success({ message: "Driver deleted" });

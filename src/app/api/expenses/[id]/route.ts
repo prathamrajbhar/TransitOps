@@ -14,7 +14,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "expenses:read");
+    requirePermission(user, "expenses:read");
     const expense = await ExpenseService.getById(user, id);
     logger.request("GET", `/api/expenses/${id}`, { userId: user.userId, durationMs: Date.now() - start, status: 200 });
     return success(expense);
@@ -36,7 +36,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "expenses:update");
+    requirePermission(user, "expenses:update");
     const body = await validateBody(req, UpdateExpenseSchema);
     const expense = await ExpenseService.update(user, id, body);
     logger.request("PATCH", `/api/expenses/${id}`, { userId: user.userId, durationMs: Date.now() - start, status: 200 });
@@ -59,7 +59,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "expenses:delete");
+    requirePermission(user, "expenses:delete");
     await ExpenseService.delete(user, id);
     logger.request("DELETE", `/api/expenses/${id}`, { userId: user.userId, durationMs: Date.now() - start, status: 200 });
     return success({ message: "Expense deleted" });

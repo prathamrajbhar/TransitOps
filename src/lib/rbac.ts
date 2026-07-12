@@ -3,8 +3,8 @@
  * Permission matrix and authorization utilities for TransitOps RBAC.
  *
  * Usage:
- *   const can = hasPermission(user.role, "vehicles:create")
- *   requirePermission(user.role, "vehicles:delete") // throws ForbiddenError
+ *   const can = hasPermission(user, "vehicles:create")
+ *   requirePermission(user, "vehicles:delete") // throws ForbiddenError
  */
 import { ForbiddenError, AuthError } from "./errors";
 import type { Role, Permission, AuthUser } from "../types/rbac";
@@ -26,6 +26,7 @@ const PERMISSIONS: Record<Role, Permission[]> = {
   ],
   DISPATCHER: [
     "vehicles:read",
+    "drivers:read",
     "trips:read", "trips:create", "trips:update", "trips:dispatch", "trips:complete", "trips:cancel",
     "fuel:read",
     "expenses:read",
@@ -33,12 +34,15 @@ const PERMISSIONS: Record<Role, Permission[]> = {
   ],
   SAFETY_OFFICER: [
     "drivers:read", "drivers:create", "drivers:update",
+    "vehicles:read",
     "trips:read",
     "maintenance:read",
     "org:read",
   ],
   FINANCIAL_ANALYST: [
     "vehicles:read",
+    "drivers:read",
+    "trips:read",
     "fuel:read", "fuel:create", "fuel:update",
     "expenses:read", "expenses:create", "expenses:update",
     "maintenance:read",
@@ -50,23 +54,26 @@ const PERMISSIONS: Record<Role, Permission[]> = {
 
 // ─── Check helpers ───────────────────────────────
 
-export function hasPermission(role: Role, permission: Permission): boolean {
-  return PERMISSIONS[role]?.includes(permission) ?? false;
+export function hasPermission(user: AuthUser, permission: Permission): boolean {
+  if (user.permissions) {
+    return user.permissions.includes(permission);
+  }
+  return PERMISSIONS[user.role]?.includes(permission) ?? false;
 }
 
-export function requirePermission(role: Role, permission: Permission): void {
-  if (!hasPermission(role, permission)) {
+export function requirePermission(user: AuthUser, permission: Permission): void {
+  if (!hasPermission(user, permission)) {
     throw new ForbiddenError(
-      `Role '${role}' does not have permission: ${permission}`
+      `Role '${user.role}' does not have permission: ${permission}`
     );
   }
 }
 
 export function hasAllPermissions(
-  role: Role,
+  user: AuthUser,
   permissions: Permission[]
 ): boolean {
-  return permissions.every((p) => hasPermission(role, p));
+  return permissions.every((p) => hasPermission(user, p));
 }
 
 export function requireRole(role: Role, ...allowed: Role[]): void {

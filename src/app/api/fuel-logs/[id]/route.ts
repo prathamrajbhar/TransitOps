@@ -14,7 +14,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "fuel:read");
+    requirePermission(user, "fuel:read");
     const log = await FuelExpenseService.getFuelLogById(user, id);
     logger.request("GET", `/api/fuel-logs/${id}`, { userId: user.userId, durationMs: Date.now() - start, status: 200 });
     return success(log);
@@ -36,7 +36,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "fuel:update");
+    requirePermission(user, "fuel:update");
     const body = await validateBody(req, UpdateFuelLogSchema);
     const log = await FuelExpenseService.updateFuelLog(user, id, body);
     logger.request("PATCH", `/api/fuel-logs/${id}`, { userId: user.userId, durationMs: Date.now() - start, status: 200 });
@@ -59,7 +59,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "fuel:delete");
+    requirePermission(user, "fuel:delete");
     await FuelExpenseService.deleteFuelLog(user, id);
     logger.request("DELETE", `/api/fuel-logs/${id}`, { userId: user.userId, durationMs: Date.now() - start, status: 200 });
     return success({ message: "Fuel log deleted" });

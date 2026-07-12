@@ -54,12 +54,15 @@ export async function signIn(input: SignInInput): Promise<AuthUser> {
 
   await createSession(user.id, user.role as string, user.organizationId);
 
+  const permissions = await resolvePermissions(user.role, user.organizationId);
+
   return {
     userId: user.id,
     name: user.name,
     email: user.email,
     role: user.role as Role,
     organizationId: user.organizationId,
+    permissions,
   };
 }
 
@@ -84,17 +87,141 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
 
   const user = await prisma.user.findUnique({
     where: { id: session.userId },
-    select: { name: true, email: true },
+    select: { name: true, email: true, organizationId: true },
   });
   if (!user) return null;
+
+  const permissions = await resolvePermissions(session.role, user.organizationId);
 
   return {
     userId: session.userId,
     name: user.name,
     email: user.email,
     role: session.role as Role,
-    organizationId: session.organizationId,
+    organizationId: user.organizationId,
+    permissions,
   };
+}
+
+const DEFAULT_RBAC_MATRIX = {
+  FLEET_MANAGER: {
+    FLEET: "FULL",
+    DRIVERS: "FULL",
+    TRIPS: "NONE",
+    MAINTENANCE: "FULL",
+    FUEL_EXPENSES: "NONE",
+    ANALYTICS: "FULL",
+    SETTINGS: "FULL",
+  },
+  DISPATCHER: {
+    FLEET: "VIEW",
+    DRIVERS: "VIEW",
+    TRIPS: "FULL",
+    MAINTENANCE: "NONE",
+    FUEL_EXPENSES: "NONE",
+    ANALYTICS: "NONE",
+    SETTINGS: "NONE",
+  },
+  SAFETY_OFFICER: {
+    FLEET: "VIEW",
+    DRIVERS: "FULL",
+    TRIPS: "VIEW",
+    MAINTENANCE: "VIEW",
+    FUEL_EXPENSES: "NONE",
+    ANALYTICS: "NONE",
+    SETTINGS: "NONE",
+  },
+  FINANCIAL_ANALYST: {
+    FLEET: "VIEW",
+    DRIVERS: "VIEW",
+    TRIPS: "VIEW",
+    MAINTENANCE: "VIEW",
+    FUEL_EXPENSES: "FULL",
+    ANALYTICS: "FULL",
+    SETTINGS: "NONE",
+  },
+};
+
+function getPermissionsFromMatrix(
+  role: string,
+  matrix: Record<string, Record<string, string>>
+): string[] {
+  const roleAccess = matrix[role] || {};
+  const permissions: string[] = ["org:read"];
+
+  // Fleet
+  const fleet = roleAccess.FLEET;
+  if (fleet === "FULL" || fleet === "VIEW") permissions.push("vehicles:read");
+  if (fleet === "FULL") permissions.push("vehicles:create", "vehicles:update", "vehicles:delete");
+
+  // Drivers
+  const drivers = roleAccess.DRIVERS;
+  if (drivers === "FULL" || drivers === "VIEW") permissions.push("drivers:read");
+  if (drivers === "FULL") permissions.push("drivers:create", "drivers:update", "drivers:delete");
+
+  // Trips
+  const trips = roleAccess.TRIPS;
+  if (trips === "FULL" || trips === "VIEW") permissions.push("trips:read");
+  if (trips === "FULL") {
+    permissions.push(
+      "trips:create",
+      "trips:update",
+      "trips:delete",
+      "trips:dispatch",
+      "trips:complete",
+      "trips:cancel"
+    );
+  }
+
+  // Maintenance
+  const maint = roleAccess.MAINTENANCE;
+  if (maint === "FULL" || maint === "VIEW") permissions.push("maintenance:read");
+  if (maint === "FULL") permissions.push("maintenance:create", "maintenance:update", "maintenance:delete");
+
+  // Fuel & Expenses
+  const fuel = roleAccess.FUEL_EXPENSES;
+  if (fuel === "FULL" || fuel === "VIEW") permissions.push("fuel:read", "expenses:read");
+  if (fuel === "FULL") {
+    permissions.push(
+      "fuel:create", "fuel:update", "fuel:delete",
+      "expenses:create", "expenses:update", "expenses:delete"
+    );
+  }
+
+  // Analytics
+  const analytics = roleAccess.ANALYTICS;
+  if (analytics === "FULL" || analytics === "VIEW") permissions.push("analytics:read");
+
+  // Settings
+  const settings = roleAccess.SETTINGS;
+  if (settings === "FULL" || settings === "VIEW") permissions.push("settings:read");
+  if (settings === "FULL") permissions.push("settings:update");
+
+  return permissions;
+}
+
+async function resolvePermissions(role: string, organizationId: string): Promise<string[]> {
+  const settings = await prisma.settings.findUnique({
+    where: {
+      organizationId_key: {
+        organizationId,
+        key: "rbac_matrix",
+      },
+    },
+  });
+
+  let matrix = DEFAULT_RBAC_MATRIX;
+  if (settings && settings.value) {
+    try {
+      matrix = typeof settings.value === "string"
+        ? JSON.parse(settings.value)
+        : settings.value as any;
+    } catch (e) {
+      console.error("Failed to parse DB rbac_matrix in auth.ts", e);
+    }
+  }
+
+  return getPermissionsFromMatrix(role, matrix);
 }
 
 // ─── Session Refresh ─────────────────────────────────────────────

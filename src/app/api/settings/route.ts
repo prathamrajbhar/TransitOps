@@ -11,7 +11,6 @@ export async function GET() {
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "settings:read");
     const settings = await prisma.settings.findMany({ where: orgScope(user) });
     const merged = settings.reduce((acc, s) => {
       acc[s.key] = s.value as unknown as string;
@@ -35,7 +34,7 @@ export async function PUT(req: NextRequest) {
   try {
     const user = await getCurrentUser();
     if (!user) return unauthorized();
-    requirePermission(user.role, "settings:update");
+    requirePermission(user, "settings:update");
     const body = await req.json() as Record<string, string>;
     for (const [key, value] of Object.entries(body)) {
       await prisma.settings.upsert({
