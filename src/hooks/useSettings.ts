@@ -25,7 +25,7 @@ export const useSettings = (options?: { enabled?: boolean; module?: ModuleName }
       const body = await res.json();
       return body.data ?? {};
     },
-    enabled: options?.enabled,
+    enabled: (options?.enabled ?? true) && !!user,
   });
 
   const updateMutation = useMutation({

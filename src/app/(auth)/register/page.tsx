@@ -13,7 +13,7 @@ export default function RegisterPage() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("Password@123");
+  const [password, setPassword] = useState("");
   const [role, setRole] = useState<RoleName>("FLEET_MANAGER");
 
   const [error, setError] = useState<string | null>(null);
@@ -83,14 +83,14 @@ export default function RegisterPage() {
         muted
         playsInline
       />
-      
+
       {/* Multi-layer gradient overlays for cinematic depth (brighter view) */}
       <div className="absolute inset-0 bg-slate-950/45 z-[1]" />
       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-slate-950/30 z-[1]" />
-      
+
       {/* Content wrapper floating above video */}
       <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8 animate-in fade-in duration-700">
-        
+
         {/* Left column: Brand & Hero text */}
         <div className="flex flex-col justify-between space-y-8 max-w-xl text-white lg:text-left text-center">
           {/* Brand header */}
